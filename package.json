@@ -1,0 +1,27 @@
+{
+  "name": "anki-dict-extension",
+  "version": "1.0.0",
+  "description": "Chrome extension for looking up English words and exporting to Anki",
+  "type": "module",
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "tsc --noEmit && vite build",
+    "type-check": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "chrome-extension",
+    "anki",
+    "dictionary",
+    "cambridge",
+    "vocabulary"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}

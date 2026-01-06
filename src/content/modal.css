@@ -1,0 +1,234 @@
+.anki-dict-modal {
+  position: absolute;
+  z-index: 2147483647;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  min-width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.anki-dict-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.anki-dict-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.anki-dict-content {
+  margin-top: 10px;
+}
+
+.anki-dict-word h2 {
+  margin: 0 0 10px 0;
+  font-size: 24px;
+  color: #1a73e8;
+  text-transform: capitalize;
+}
+
+.anki-dict-pronunciations {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.anki-dict-pronunciation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.anki-dict-pron-label {
+  font-weight: 600;
+  color: #666;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.anki-dict-pron-ipa {
+  color: #1a73e8;
+  font-family: 'Lucida Sans Unicode', 'DejaVu Sans', 'Arial Unicode MS', monospace;
+}
+
+.anki-dict-audio-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.anki-dict-audio-btn:hover {
+  opacity: 1;
+}
+
+.anki-dict-definition {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.anki-dict-definition:last-child {
+  border-bottom: none;
+  margin-bottom: 10px;
+}
+
+.anki-dict-def-header {
+  margin-bottom: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.anki-dict-pos {
+  font-weight: 600;
+  color: #5f6368;
+  font-style: italic;
+}
+
+.anki-dict-level {
+  font-size: 11px;
+  background: #34a853;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.anki-dict-category {
+  font-size: 11px;
+  background: #fbbc04;
+  color: #333;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.anki-dict-meaning {
+  margin: 8px 0;
+  color: #333;
+  font-size: 15px;
+}
+
+.anki-dict-examples {
+  margin: 10px 0 0 0;
+  padding-left: 20px;
+  list-style: none;
+}
+
+.anki-dict-examples li {
+  margin: 6px 0;
+  color: #666;
+  font-style: italic;
+  position: relative;
+  padding-left: 12px;
+}
+
+.anki-dict-examples li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #1a73e8;
+}
+
+.anki-dict-source {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.anki-dict-source a {
+  color: #1a73e8;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.anki-dict-source a:hover {
+  text-decoration: underline;
+}
+
+.anki-dict-loading {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.anki-dict-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #1a73e8;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: anki-dict-spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes anki-dict-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.anki-dict-error {
+  padding: 20px;
+  text-align: center;
+}
+
+.anki-dict-error h3 {
+  color: #d93025;
+  margin: 0 0 10px 0;
+}
+
+.anki-dict-error p {
+  color: #666;
+  margin: 0;
+}
+
+.anki-dict-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.anki-dict-modal::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.anki-dict-modal::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.anki-dict-modal::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

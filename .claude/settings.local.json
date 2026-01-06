@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.ldoceonline.com)",
+      "WebFetch(domain:dictionary.cambridge.org)",
+      "Bash(npm install)",
+      "Bash(bun --version:*)",
+      "Bash(rm:*)",
+      "Bash(bun install)",
+      "Bash(bun run build)",
+      "Bash(bun run type-check:*)",
+      "Bash(cat:*)",
+      "Bash(timeout 5 bun run:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

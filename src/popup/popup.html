@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anki Dictionary Helper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Anki Dictionary</h1>
+      <div class="stats">
+        <span id="word-count">0 words saved</span>
+      </div>
+    </header>
+
+    <div class="actions">
+      <button id="select-all" class="btn btn-secondary">Select All</button>
+      <button id="select-none" class="btn btn-secondary">Deselect All</button>
+      <button id="export-btn" class="btn btn-primary">Export to Anki</button>
+      <button id="clear-all" class="btn btn-danger">Clear All</button>
+    </div>
+
+    <div id="empty-state" class="empty-state">
+      <p>No words saved yet.</p>
+      <p class="hint">Alt+click on any English word to look it up and save it!</p>
+    </div>
+
+    <div id="word-list" class="word-list"></div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
