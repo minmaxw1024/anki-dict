@@ -4,10 +4,11 @@ import type {
   MessageRequest,
   LookupResponse,
   FetchHtmlResponse,
+  FetchAudioResponse,
 } from "../lib/types";
 
 browser.runtime.onMessage.addListener(
-  (msg: unknown): Promise<LookupResponse | FetchHtmlResponse> | undefined => {
+  (msg: unknown): Promise<LookupResponse | FetchHtmlResponse | FetchAudioResponse> | undefined => {
     const message = msg as MessageRequest;
 
     if (message.action === "lookup") {
@@ -49,6 +50,19 @@ browser.runtime.onMessage.addListener(
         });
     }
 
+    if (message.action === "fetch-audio") {
+      return handleFetchAudio(message.url)
+        .then((dataUrl) => ({ success: true, dataUrl } as FetchAudioResponse))
+        .catch((error) => {
+          console.error("Audio fetch error:", error);
+          return {
+            success: false,
+            error:
+              error instanceof Error ? error.message : "Unknown error occurred",
+          } as FetchAudioResponse;
+        });
+    }
+
     return undefined;
   },
 );
@@ -83,6 +97,29 @@ async function handleFetchHtml(url: string): Promise<string> {
   }
 
   return response.text();
+}
+
+async function handleFetchAudio(url: string): Promise<string> {
+  const fullUrl = url.startsWith("http")
+    ? url
+    : `https://dictionary.cambridge.org${url}`;
+
+  const response = await fetch(fullUrl);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch audio: ${response.status}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const base64 = btoa(binary);
+  const contentType = response.headers.get("content-type") || "audio/mpeg";
+
+  return `data:${contentType};base64,${base64}`;
 }
 
 console.log("Anki Dictionary Helper: Background service worker initialized");

@@ -6,7 +6,8 @@ const SETTINGS_KEY = 'settings';
 
 const DEFAULT_SETTINGS: StorageSchema['settings'] = {
   autoSave: true,
-  maxCacheAge: 30
+  maxCacheAge: 30,
+  theme: 'duolingo',
 };
 
 export async function saveWord(wordEntry: WordEntry): Promise<void> {

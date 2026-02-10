@@ -1,3 +1,26 @@
+:root {
+    /* Default theme (Duolingo Origin) */
+    --ad-primary: #58cc02;
+    --ad-primary-dark: #43c000;
+    --ad-primary-light: #89e219;
+    --ad-primary-hover: #61d800;
+    --ad-primary-bg: #e5f8cc;
+    --ad-primary-border: #c4ed8b;
+    --ad-accent-blue: #1cb0f6;
+    --ad-accent-yellow: #ffc800;
+    --ad-text-primary: #4b4b4b;
+    --ad-text-secondary: #777777;
+    --ad-text-muted: #afafaf;
+    --ad-border: #e5e5e5;
+    --ad-border-dark: #cccccc;
+    --ad-bg: #ffffff;
+    --ad-bg-alt: #f7f7f7;
+    --ad-hover-bg: #f0fce4;
+    --ad-error: #ff4b4b;
+    --ad-error-bg: #fff0f0;
+    --ad-error-border: #ffcccc;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -16,8 +39,8 @@ body {
         Roboto,
         sans-serif;
     font-size: 14px;
-    color: #4b4b4b;
-    background: #ffffff;
+    color: var(--ad-text-primary);
+    background: var(--ad-bg);
 }
 
 .container {
@@ -27,10 +50,17 @@ body {
 }
 
 header {
-    background: #58cc02;
+    background: var(--ad-primary);
     color: white;
     padding: 18px 20px;
-    box-shadow: 0 4px 0 #43c000;
+    box-shadow: 0 4px 0 var(--ad-primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-left {
+    flex: 1;
 }
 
 header h1 {
@@ -46,12 +76,43 @@ header h1 {
     opacity: 0.9;
 }
 
+.settings-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+}
+
+.settings-btn:active {
+    transform: scale(0.95);
+}
+
+.settings-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+}
+
 .actions {
     display: flex;
     gap: 8px;
     padding: 14px 16px;
-    background: #ffffff;
-    border-bottom: 2px solid #e5e5e5;
+    background: var(--ad-bg);
+    border-bottom: 2px solid var(--ad-border);
     flex-wrap: wrap;
 }
 
@@ -72,14 +133,14 @@ header h1 {
 }
 
 .btn-primary {
-    background: #58cc02;
+    background: var(--ad-primary);
     color: white;
-    border-color: #43c000;
-    box-shadow: 0 4px 0 #43c000;
+    border-color: var(--ad-primary-dark);
+    box-shadow: 0 4px 0 var(--ad-primary-dark);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #61d800;
+    background: var(--ad-primary-hover);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -88,23 +149,23 @@ header h1 {
 }
 
 .btn-primary:disabled {
-    background: #e5e5e5;
-    border-color: #cccccc;
-    box-shadow: 0 4px 0 #cccccc;
-    color: #afafaf;
+    background: var(--ad-border);
+    border-color: var(--ad-border-dark);
+    box-shadow: 0 4px 0 var(--ad-border-dark);
+    color: var(--ad-text-muted);
     cursor: not-allowed;
 }
 
 .btn-secondary {
-    background: #ffffff;
-    color: #afafaf;
-    border: 2px solid #e5e5e5;
-    box-shadow: 0 4px 0 #e5e5e5;
+    background: var(--ad-bg);
+    color: var(--ad-text-muted);
+    border: 2px solid var(--ad-border);
+    box-shadow: 0 4px 0 var(--ad-border);
 }
 
 .btn-secondary:hover {
-    color: #777777;
-    border-color: #cccccc;
+    color: var(--ad-text-secondary);
+    border-color: var(--ad-border-dark);
 }
 
 .btn-secondary:active {
@@ -113,7 +174,7 @@ header h1 {
 }
 
 .btn-danger {
-    background: #ff4b4b;
+    background: var(--ad-error);
     color: white;
     border-color: #e53535;
     box-shadow: 0 4px 0 #e53535;
@@ -131,7 +192,7 @@ header h1 {
 .empty-state {
     text-align: center;
     padding: 40px 20px;
-    color: #afafaf;
+    color: var(--ad-text-muted);
     display: none;
 }
 
@@ -143,7 +204,7 @@ header h1 {
 
 .empty-state .hint {
     font-size: 13px;
-    color: #cccccc;
+    color: var(--ad-border-dark);
     margin-top: 12px;
     font-weight: 600;
 }
@@ -159,23 +220,23 @@ header h1 {
     align-items: flex-start;
     padding: 14px 16px;
     margin-bottom: 8px;
-    border: 2px solid #e5e5e5;
+    border: 2px solid var(--ad-border);
     border-radius: 12px;
     gap: 12px;
     transition: all 0.15s;
-    background: #ffffff;
+    background: var(--ad-bg);
 }
 
 .word-item:hover {
-    background: #f0fce4;
-    border-color: #c4ed8b;
+    background: var(--ad-hover-bg);
+    border-color: var(--ad-primary-border);
 }
 
 .word-checkbox {
     margin-top: 4px;
     cursor: pointer;
     flex-shrink: 0;
-    accent-color: #58cc02;
+    accent-color: var(--ad-primary);
     width: 18px;
     height: 18px;
 }
@@ -196,13 +257,13 @@ header h1 {
 .word-title {
     font-size: 16px;
     font-weight: 800;
-    color: #58cc02;
+    color: var(--ad-primary);
     text-transform: capitalize;
 }
 
 .word-pronunciation {
     font-size: 13px;
-    color: #afafaf;
+    color: var(--ad-text-muted);
     font-family: "Nunito", "Lucida Sans Unicode", "DejaVu Sans", monospace;
     font-weight: 700;
 }
@@ -211,7 +272,7 @@ header h1 {
     display: flex;
     gap: 10px;
     font-size: 11px;
-    color: #afafaf;
+    color: var(--ad-text-muted);
     margin-bottom: 6px;
     flex-wrap: wrap;
     font-weight: 700;
@@ -220,7 +281,7 @@ header h1 {
 .word-pos {
     font-style: italic;
     font-weight: 800;
-    color: #1cb0f6;
+    color: var(--ad-accent-blue);
 }
 
 .word-date::before {
@@ -235,7 +296,7 @@ header h1 {
 
 .word-preview {
     font-size: 13px;
-    color: #777777;
+    color: var(--ad-text-secondary);
     line-height: 1.5;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -248,7 +309,7 @@ header h1 {
 .delete-word-btn {
     background: none;
     border: 2px solid transparent;
-    color: #ff4b4b;
+    color: var(--ad-error);
     font-size: 22px;
     cursor: pointer;
     padding: 0;
@@ -270,8 +331,8 @@ header h1 {
 
 .delete-word-btn:hover {
     opacity: 1 !important;
-    background: #fff0f0;
-    border-color: #ffcccc;
+    background: var(--ad-error-bg);
+    border-color: var(--ad-error-border);
     transform: scale(1.1);
 }
 
@@ -284,15 +345,15 @@ header h1 {
 }
 
 .word-list::-webkit-scrollbar-track {
-    background: #f7f7f7;
+    background: var(--ad-bg-alt);
     border-radius: 8px;
 }
 
 .word-list::-webkit-scrollbar-thumb {
-    background: #89e219;
+    background: var(--ad-primary-light);
     border-radius: 8px;
 }
 
 .word-list::-webkit-scrollbar-thumb:hover {
-    background: #58cc02;
+    background: var(--ad-primary);
 }

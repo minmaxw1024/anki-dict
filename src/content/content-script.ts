@@ -8,6 +8,8 @@ import {
   updateModalLoading,
 } from "./modal";
 import { parseCambridgeHtml, getCambridgeUrl } from "../lib/dictionary-scraper";
+import { getSettings } from "../lib/storage";
+import { applyThemeToElement } from "../lib/themes";
 import type {
   LookupResponse,
   FetchHtmlResponse,
@@ -62,6 +64,14 @@ async function handleWordLookup(
   if (!currentModal) {
     currentModal = createModal();
     document.body.appendChild(currentModal);
+  }
+
+  // Apply the user's selected theme to the modal
+  try {
+    const settings = await getSettings();
+    applyThemeToElement(currentModal, settings.theme);
+  } catch {
+    // Fallback to default CSS variables if storage read fails
   }
 
   updateModalLoading(currentModal, word);

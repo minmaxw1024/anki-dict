@@ -7,6 +7,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "fs";
+import { buildSync } from "esbuild";
 
 const targetBrowser = process.env.BROWSER || "chrome";
 
@@ -46,22 +47,19 @@ export default defineConfig({
           __dirname,
           "src/background/service-worker.ts",
         ),
-        "content/content-script": resolve(
-          __dirname,
-          "src/content/content-script.ts",
-        ),
         "popup/popup": resolve(__dirname, "src/popup/popup.html"),
+        "options/options": resolve(__dirname, "src/options/options.html"),
       },
       output: {
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name.includes("service-worker")) {
             return "background/service-worker.js";
           }
-          if (chunkInfo.name.includes("content-script")) {
-            return "content/content-script.js";
-          }
           if (chunkInfo.name.includes("popup")) {
             return "popup/popup.js";
+          }
+          if (chunkInfo.name.includes("options")) {
+            return "options/options.js";
           }
           return "[name].js";
         },
@@ -69,6 +67,9 @@ export default defineConfig({
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === "popup.css") {
             return "popup/popup.css";
+          }
+          if (assetInfo.name === "options.css") {
+            return "options/options.css";
           }
           if (assetInfo.name?.endsWith(".png")) {
             return "assets/icons/[name].[ext]";
@@ -101,6 +102,17 @@ export default defineConfig({
         if (!existsSync(contentDir)) {
           mkdirSync(contentDir, { recursive: true });
         }
+
+        // Build content script separately as IIFE (content scripts
+        // cannot use ES module imports in browser extensions)
+        buildSync({
+          entryPoints: [resolve(__dirname, "src/content/content-script.ts")],
+          bundle: true,
+          format: "iife",
+          target: "es2022",
+          outfile: resolve(contentDir, "content-script.js"),
+          sourcemap: process.env.NODE_ENV === "development",
+        });
 
         // Generate browser-specific manifest
         generateManifest(distDir);

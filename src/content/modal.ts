@@ -1,4 +1,5 @@
-import type { WordEntry } from '../lib/types';
+import browser from 'webextension-polyfill';
+import type { WordEntry, FetchAudioResponse } from '../lib/types';
 
 const MODAL_ID = 'anki-dict-modal';
 
@@ -179,10 +180,21 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
-function playAudio(url: string): void {
-  const fullUrl = url.startsWith('http') ? url : `https://dictionary.cambridge.org${url}`;
-  const audio = new Audio(fullUrl);
-  audio.play().catch(err => {
-    console.error('Error playing audio:', err);
-  });
+async function playAudio(url: string): Promise<void> {
+  try {
+    // Fetch audio through the service worker to bypass page CSP restrictions
+    const response: FetchAudioResponse = await browser.runtime.sendMessage({
+      action: "fetch-audio",
+      url,
+    });
+
+    if (response.success && response.dataUrl) {
+      const audio = new Audio(response.dataUrl);
+      await audio.play();
+    } else {
+      console.error("Failed to fetch audio:", response.error);
+    }
+  } catch (err) {
+    console.error("Error playing audio:", err instanceof Error ? err.message : err);
+  }
 }

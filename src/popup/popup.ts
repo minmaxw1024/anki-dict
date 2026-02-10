@@ -1,9 +1,16 @@
-import { getAllWords, deleteWord, clearAllWords } from '../lib/storage';
+import browser from 'webextension-polyfill';
+import { getAllWords, deleteWord, clearAllWords, getSettings } from '../lib/storage';
 import { generateAnkiCSV } from '../lib/csv-exporter';
+import { applyThemeToDocument } from '../lib/themes';
 import type { WordEntry } from '../lib/types';
 
 let allWords: WordEntry[] = [];
 const selectedWords = new Set<string>();
+
+async function loadTheme(): Promise<void> {
+  const settings = await getSettings();
+  applyThemeToDocument(settings.theme);
+}
 
 async function loadWords(): Promise<void> {
   allWords = await getAllWords();
@@ -177,5 +184,9 @@ document.getElementById('select-all')?.addEventListener('click', selectAll);
 document.getElementById('select-none')?.addEventListener('click', selectNone);
 document.getElementById('export-btn')?.addEventListener('click', exportToAnki);
 document.getElementById('clear-all')?.addEventListener('click', clearAll);
+document.getElementById('settings-btn')?.addEventListener('click', () => {
+  browser.runtime.openOptionsPage();
+});
 
+loadTheme();
 loadWords();

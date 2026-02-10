@@ -1,12 +1,33 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap");
 
 .anki-dict-modal {
+    /* Default theme (Duolingo Origin) */
+    --ad-primary: #58cc02;
+    --ad-primary-dark: #43c000;
+    --ad-primary-light: #89e219;
+    --ad-primary-hover: #61d800;
+    --ad-primary-bg: #e5f8cc;
+    --ad-primary-border: #c4ed8b;
+    --ad-accent-blue: #1cb0f6;
+    --ad-accent-yellow: #ffc800;
+    --ad-text-primary: #4b4b4b;
+    --ad-text-secondary: #777777;
+    --ad-text-muted: #afafaf;
+    --ad-border: #e5e5e5;
+    --ad-border-dark: #cccccc;
+    --ad-bg: #ffffff;
+    --ad-bg-alt: #f7f7f7;
+    --ad-hover-bg: #f0fce4;
+    --ad-error: #ff4b4b;
+    --ad-error-bg: #fff0f0;
+    --ad-error-border: #ffcccc;
+
     position: absolute;
     z-index: 2147483647;
-    background: #ffffff;
+    background: var(--ad-bg);
     border-radius: 16px;
-    border: 2px solid #e5e5e5;
-    box-shadow: 0 6px 0 #e5e5e5;
+    border: 2px solid var(--ad-border);
+    box-shadow: 0 6px 0 var(--ad-border);
     max-width: 500px;
     min-width: 300px;
     max-height: 80vh;
@@ -21,18 +42,18 @@
         sans-serif;
     font-size: 14px;
     line-height: 1.6;
-    color: #4b4b4b;
+    color: var(--ad-text-primary);
 }
 
 .anki-dict-close {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #f7f7f7;
-    border: 2px solid #e5e5e5;
+    background: var(--ad-bg-alt);
+    border: 2px solid var(--ad-border);
     font-size: 20px;
     cursor: pointer;
-    color: #afafaf;
+    color: var(--ad-text-muted);
     padding: 0;
     width: 32px;
     height: 32px;
@@ -45,8 +66,8 @@
 }
 
 .anki-dict-close:hover {
-    background: #58cc02;
-    border-color: #43c000;
+    background: var(--ad-primary);
+    border-color: var(--ad-primary-dark);
     color: #ffffff;
     transform: scale(1.1);
 }
@@ -63,7 +84,7 @@
     margin: 0 0 12px 0;
     font-size: 26px;
     font-weight: 800;
-    color: #58cc02;
+    color: var(--ad-primary);
     text-transform: capitalize;
 }
 
@@ -79,21 +100,21 @@
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
-    background: #e5f8cc;
-    border: 2px solid #c4ed8b;
+    background: var(--ad-primary-bg);
+    border: 2px solid var(--ad-primary-border);
     border-radius: 12px;
 }
 
 .anki-dict-pron-label {
     font-weight: 800;
-    color: #43c000;
+    color: var(--ad-primary-dark);
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .anki-dict-pron-ipa {
-    color: #4b4b4b;
+    color: var(--ad-text-primary);
     font-family: "Nunito", "Lucida Sans Unicode", "DejaVu Sans", monospace;
     font-weight: 700;
 }
@@ -118,9 +139,9 @@
 .anki-dict-definition {
     margin-bottom: 16px;
     padding: 14px 16px;
-    background: #f7f7f7;
+    background: var(--ad-bg-alt);
     border-radius: 12px;
-    border-left: 4px solid #58cc02;
+    border-left: 4px solid var(--ad-primary);
 }
 
 .anki-dict-definition:last-child {
@@ -138,7 +159,7 @@
 .anki-dict-pos {
     font-weight: 800;
     color: #ffffff;
-    background: #58cc02;
+    background: var(--ad-primary);
     padding: 3px 10px;
     border-radius: 20px;
     font-size: 12px;
@@ -149,7 +170,7 @@
 
 .anki-dict-level {
     font-size: 11px;
-    background: #1cb0f6;
+    background: var(--ad-accent-blue);
     color: white;
     padding: 3px 10px;
     border-radius: 20px;
@@ -159,8 +180,8 @@
 
 .anki-dict-category {
     font-size: 11px;
-    background: #ffc800;
-    color: #4b4b4b;
+    background: var(--ad-accent-yellow);
+    color: var(--ad-text-primary);
     padding: 3px 10px;
     border-radius: 20px;
     font-weight: 800;
@@ -170,7 +191,7 @@
 
 .anki-dict-meaning {
     margin: 8px 0;
-    color: #4b4b4b;
+    color: var(--ad-text-primary);
     font-size: 15px;
     font-weight: 600;
     line-height: 1.5;
@@ -184,7 +205,7 @@
 
 .anki-dict-examples li {
     margin: 8px 0;
-    color: #777777;
+    color: var(--ad-text-secondary);
     font-style: italic;
     position: relative;
     padding-left: 16px;
@@ -198,19 +219,19 @@
     top: 8px;
     width: 8px;
     height: 8px;
-    background: #89e219;
+    background: var(--ad-primary-light);
     border-radius: 50%;
 }
 
 .anki-dict-source {
     margin-top: 16px;
     padding-top: 16px;
-    border-top: 2px solid #e5e5e5;
+    border-top: 2px solid var(--ad-border);
     text-align: center;
 }
 
 .anki-dict-source a {
-    color: #58cc02;
+    color: var(--ad-primary);
     text-decoration: none;
     font-size: 13px;
     font-weight: 800;
@@ -218,7 +239,7 @@
 }
 
 .anki-dict-source a:hover {
-    color: #43c000;
+    color: var(--ad-primary-dark);
     text-decoration: underline;
 }
 
@@ -229,12 +250,12 @@
 
 .anki-dict-loading p {
     font-weight: 700;
-    color: #4b4b4b;
+    color: var(--ad-text-primary);
 }
 
 .anki-dict-spinner {
-    border: 4px solid #e5f8cc;
-    border-top: 4px solid #58cc02;
+    border: 4px solid var(--ad-primary-bg);
+    border-top: 4px solid var(--ad-primary);
     border-radius: 50%;
     width: 44px;
     height: 44px;
@@ -254,19 +275,19 @@
 .anki-dict-error {
     padding: 24px;
     text-align: center;
-    background: #fff0f0;
+    background: var(--ad-error-bg);
     border-radius: 12px;
-    border: 2px solid #ffcccc;
+    border: 2px solid var(--ad-error-border);
 }
 
 .anki-dict-error h3 {
-    color: #ff4b4b;
+    color: var(--ad-error);
     margin: 0 0 10px 0;
     font-weight: 800;
 }
 
 .anki-dict-error p {
-    color: #777777;
+    color: var(--ad-text-secondary);
     margin: 0;
     font-weight: 600;
 }
@@ -276,15 +297,15 @@
 }
 
 .anki-dict-modal::-webkit-scrollbar-track {
-    background: #f7f7f7;
+    background: var(--ad-bg-alt);
     border-radius: 8px;
 }
 
 .anki-dict-modal::-webkit-scrollbar-thumb {
-    background: #89e219;
+    background: var(--ad-primary-light);
     border-radius: 8px;
 }
 
 .anki-dict-modal::-webkit-scrollbar-thumb:hover {
-    background: #58cc02;
+    background: var(--ad-primary);
 }
