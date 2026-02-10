@@ -1,16 +1,21 @@
 {
   "name": "anki-dict-extension",
   "version": "1.0.0",
-  "description": "Chrome extension for looking up English words and exporting to Anki",
+  "description": "Browser extension for looking up English words and exporting to Anki (Chrome & Firefox)",
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch --mode development",
-    "build": "tsc --noEmit && vite build",
+    "dev": "BROWSER=chrome vite build --watch --mode development",
+    "dev:chrome": "BROWSER=chrome vite build --watch --mode development",
+    "dev:firefox": "BROWSER=firefox vite build --watch --mode development",
+    "build": "bun run build:chrome && bun run build:firefox",
+    "build:chrome": "BROWSER=chrome tsc --noEmit && BROWSER=chrome vite build",
+    "build:firefox": "BROWSER=firefox tsc --noEmit && BROWSER=firefox vite build",
     "type-check": "tsc --noEmit",
     "preview": "vite preview"
   },
   "keywords": [
     "chrome-extension",
+    "firefox-extension",
     "anki",
     "dictionary",
     "cambridge",
@@ -19,9 +24,12 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/chrome": "^0.0.268",
     "@types/node": "^22.10.5",
+    "@types/webextension-polyfill": "^0.12.4",
     "typescript": "^5.7.3",
     "vite": "^6.0.7"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.12.0"
   }
 }

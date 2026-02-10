@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import {
   createModal,
   showModal,
@@ -68,7 +69,7 @@ async function handleWordLookup(
 
   try {
     // Check cache first via service worker
-    const cacheResponse: LookupResponse = await chrome.runtime.sendMessage({
+    const cacheResponse: LookupResponse = await browser.runtime.sendMessage({
       action: "lookup",
       word,
     });
@@ -79,7 +80,7 @@ async function handleWordLookup(
     }
 
     // Fetch HTML via service worker (has host_permissions)
-    const fetchResponse: FetchHtmlResponse = await chrome.runtime.sendMessage({
+    const fetchResponse: FetchHtmlResponse = await browser.runtime.sendMessage({
       action: "fetch-html",
       url: getCambridgeUrl(word),
     });
@@ -96,7 +97,7 @@ async function handleWordLookup(
     const wordEntry = parseCambridgeHtml(fetchResponse.html, word);
 
     // Save to cache via service worker
-    await chrome.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       action: "save",
       data: wordEntry,
     });

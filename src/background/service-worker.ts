@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import { saveWord, getWord } from "../lib/storage";
 import type {
   MessageRequest,
@@ -5,58 +6,50 @@ import type {
   FetchHtmlResponse,
 } from "../lib/types";
 
-chrome.runtime.onMessage.addListener(
-  (
-    message: MessageRequest,
-    sender: chrome.runtime.MessageSender,
-    sendResponse: (response: LookupResponse | FetchHtmlResponse) => void,
-  ) => {
+browser.runtime.onMessage.addListener(
+  (msg: unknown): Promise<LookupResponse | FetchHtmlResponse> | undefined => {
+    const message = msg as MessageRequest;
+
     if (message.action === "lookup") {
-      handleLookup(message.word)
-        .then((data) => sendResponse({ success: true, data }))
+      return handleLookup(message.word)
+        .then((data) => ({ success: true, data } as LookupResponse))
         .catch((error) => {
           console.error("Lookup error:", error);
-          sendResponse({
+          return {
             success: false,
             error:
               error instanceof Error ? error.message : "Unknown error occurred",
-          });
+          } as LookupResponse;
         });
-
-      return true;
     }
 
     if (message.action === "save") {
-      saveWord(message.data)
-        .then(() => sendResponse({ success: true }))
+      return saveWord(message.data)
+        .then(() => ({ success: true } as LookupResponse))
         .catch((error) => {
           console.error("Save error:", error);
-          sendResponse({
+          return {
             success: false,
             error:
               error instanceof Error ? error.message : "Unknown error occurred",
-          });
+          } as LookupResponse;
         });
-
-      return true;
     }
 
     if (message.action === "fetch-html") {
-      handleFetchHtml(message.url)
-        .then((html) => sendResponse({ success: true, html }))
+      return handleFetchHtml(message.url)
+        .then((html) => ({ success: true, html } as FetchHtmlResponse))
         .catch((error) => {
           console.error("Fetch error:", error);
-          sendResponse({
+          return {
             success: false,
             error:
               error instanceof Error ? error.message : "Unknown error occurred",
-          });
+          } as FetchHtmlResponse;
         });
-
-      return true;
     }
 
-    return false;
+    return undefined;
   },
 );
 

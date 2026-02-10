@@ -1,6 +1,41 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
-import { copyFileSync, mkdirSync, existsSync } from "fs";
+import {
+  copyFileSync,
+  mkdirSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "fs";
+
+const targetBrowser = process.env.BROWSER || "chrome";
+
+function generateManifest(distDir: string): void {
+  const manifest = JSON.parse(
+    readFileSync(resolve(__dirname, "src/manifest.json"), "utf-8"),
+  );
+
+  if (targetBrowser === "firefox") {
+    // Firefox MV3 uses background.scripts instead of service_worker
+    manifest.background = {
+      scripts: ["background/service-worker.js"],
+      type: "module",
+    };
+
+    // Firefox requires browser_specific_settings
+    manifest.browser_specific_settings = {
+      gecko: {
+        id: "anki-dict@example.com",
+        strict_min_version: "109.0",
+      },
+    };
+  }
+
+  writeFileSync(
+    resolve(distDir, "manifest.json"),
+    JSON.stringify(manifest, null, 2),
+  );
+}
 
 export default defineConfig({
   root: resolve(__dirname, "src"),
@@ -42,7 +77,7 @@ export default defineConfig({
         },
       },
     },
-    outDir: resolve(__dirname, "dist"),
+    outDir: resolve(__dirname, `dist/${targetBrowser}`),
     emptyOutDir: true,
     sourcemap: process.env.NODE_ENV === "development",
   },
@@ -55,7 +90,7 @@ export default defineConfig({
     {
       name: "copy-extension-files",
       closeBundle() {
-        const distDir = resolve(__dirname, "dist");
+        const distDir = resolve(__dirname, `dist/${targetBrowser}`);
         const iconsDir = resolve(distDir, "assets/icons");
 
         if (!existsSync(iconsDir)) {
@@ -67,10 +102,8 @@ export default defineConfig({
           mkdirSync(contentDir, { recursive: true });
         }
 
-        copyFileSync(
-          resolve(__dirname, "src/manifest.json"),
-          resolve(distDir, "manifest.json"),
-        );
+        // Generate browser-specific manifest
+        generateManifest(distDir);
 
         copyFileSync(
           resolve(__dirname, "src/content/modal.css"),
