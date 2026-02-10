@@ -35,8 +35,18 @@ export interface StorageSchema {
 }
 
 export interface LookupRequest {
-  action: 'lookup';
+  action: "lookup";
   word: string;
+}
+
+export interface FetchHtmlRequest {
+  action: "fetch-html";
+  url: string;
+}
+
+export interface SaveWordRequest {
+  action: "save";
+  data: WordEntry;
 }
 
 export interface LookupResponse {
@@ -45,4 +55,10 @@ export interface LookupResponse {
   error?: string;
 }
 
-export type MessageRequest = LookupRequest;
+export interface FetchHtmlResponse {
+  success: boolean;
+  html?: string;
+  error?: string;
+}
+
+export type MessageRequest = LookupRequest | FetchHtmlRequest | SaveWordRequest;
