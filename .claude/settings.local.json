@@ -12,7 +12,8 @@
       "Bash(bun run type-check:*)",
       "Bash(cat:*)",
       "Bash(timeout 5 bun run:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__acp__Bash"
     ]
   }
 }
