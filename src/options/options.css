@@ -1,0 +1,220 @@
+:root {
+    --ad-primary: #58cc02;
+    --ad-primary-dark: #43c000;
+    --ad-primary-light: #89e219;
+    --ad-primary-hover: #61d800;
+    --ad-primary-bg: #e5f8cc;
+    --ad-primary-border: #c4ed8b;
+    --ad-accent-blue: #1cb0f6;
+    --ad-accent-yellow: #ffc800;
+    --ad-text-primary: #4b4b4b;
+    --ad-text-secondary: #777777;
+    --ad-text-muted: #afafaf;
+    --ad-border: #e5e5e5;
+    --ad-border-dark: #cccccc;
+    --ad-bg: #ffffff;
+    --ad-bg-alt: #f7f7f7;
+    --ad-hover-bg: #f0fce4;
+    --ad-error: #ff4b4b;
+    --ad-error-bg: #fff0f0;
+    --ad-error-border: #ffcccc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family:
+        "Nunito",
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        sans-serif;
+    font-size: 14px;
+    color: var(--ad-text-primary);
+    background: var(--ad-bg-alt);
+    min-height: 100vh;
+}
+
+.options-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+}
+
+.options-header {
+    background: var(--ad-primary);
+    color: white;
+    padding: 32px 36px;
+    box-shadow: 0 4px 0 var(--ad-primary-dark);
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 32px;
+}
+
+.options-header h1 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+}
+
+.options-header .subtitle {
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0.9;
+}
+
+.options-main {
+    padding: 0 24px;
+    position: relative;
+}
+
+.section {
+    background: var(--ad-bg);
+    border-radius: 16px;
+    border: 2px solid var(--ad-border);
+    box-shadow: 0 4px 0 var(--ad-border);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ad-text-primary);
+    margin-bottom: 6px;
+}
+
+.section-desc {
+    font-size: 14px;
+    color: var(--ad-text-secondary);
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.theme-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.theme-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 18px 20px;
+    border: 3px solid var(--ad-border);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--ad-bg);
+    position: relative;
+}
+
+.theme-card:hover {
+    border-color: var(--ad-border-dark);
+    transform: translateY(-1px);
+}
+
+.theme-card.active {
+    border-color: var(--ad-primary);
+    background: var(--ad-hover-bg);
+    box-shadow: 0 4px 0 var(--ad-primary-dark);
+}
+
+.theme-card.active .theme-radio {
+    border-color: var(--ad-primary);
+    background: var(--ad-primary);
+}
+
+.theme-card.active .theme-radio::after {
+    content: "";
+    width: 10px;
+    height: 10px;
+    background: white;
+    border-radius: 50%;
+}
+
+.theme-radio {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--ad-border-dark);
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.theme-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.theme-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ad-text-primary);
+    margin-bottom: 2px;
+}
+
+.theme-desc {
+    font-size: 13px;
+    color: var(--ad-text-secondary);
+    font-weight: 600;
+}
+
+.theme-preview {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.theme-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.15s;
+}
+
+.theme-card:hover .theme-swatch {
+    transform: scale(1.1);
+}
+
+/* Save Toast */
+.save-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ad-primary);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 14px;
+    box-shadow: 0 4px 0 var(--ad-primary-dark), 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.save-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.save-toast-icon {
+    font-size: 16px;
+    font-weight: 800;
+}

@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import type { WordEntry, StorageSchema } from './types';
 
 const WORDS_KEY = 'words';
@@ -5,21 +6,22 @@ const SETTINGS_KEY = 'settings';
 
 const DEFAULT_SETTINGS: StorageSchema['settings'] = {
   autoSave: true,
-  maxCacheAge: 30
+  maxCacheAge: 30,
+  theme: 'duolingo',
 };
 
 export async function saveWord(wordEntry: WordEntry): Promise<void> {
-  const { words } = await chrome.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
+  const { words } = await browser.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
   const allWords = words || {};
 
   allWords[wordEntry.word] = wordEntry;
 
-  await chrome.storage.local.set({ [WORDS_KEY]: allWords });
+  await browser.storage.local.set({ [WORDS_KEY]: allWords });
 }
 
 export async function getWord(word: string): Promise<WordEntry | null> {
   const cleanWord = word.toLowerCase().trim();
-  const { words } = await chrome.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
+  const { words } = await browser.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
 
   if (!words || !words[cleanWord]) {
     return null;
@@ -34,7 +36,7 @@ export async function getWord(word: string): Promise<WordEntry | null> {
 }
 
 export async function getAllWords(): Promise<WordEntry[]> {
-  const { words } = await chrome.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
+  const { words } = await browser.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
 
   if (!words) {
     return [];
@@ -45,7 +47,7 @@ export async function getAllWords(): Promise<WordEntry[]> {
 
 export async function deleteWord(word: string): Promise<void> {
   const cleanWord = word.toLowerCase().trim();
-  const { words } = await chrome.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
+  const { words } = await browser.storage.local.get(WORDS_KEY) as { words?: StorageSchema['words'] };
 
   if (!words) {
     return;
@@ -53,15 +55,15 @@ export async function deleteWord(word: string): Promise<void> {
 
   delete words[cleanWord];
 
-  await chrome.storage.local.set({ [WORDS_KEY]: words });
+  await browser.storage.local.set({ [WORDS_KEY]: words });
 }
 
 export async function clearAllWords(): Promise<void> {
-  await chrome.storage.local.set({ [WORDS_KEY]: {} });
+  await browser.storage.local.set({ [WORDS_KEY]: {} });
 }
 
 export async function getSettings(): Promise<StorageSchema['settings']> {
-  const { settings } = await chrome.storage.local.get(SETTINGS_KEY) as { settings?: StorageSchema['settings'] };
+  const { settings } = await browser.storage.local.get(SETTINGS_KEY) as { settings?: StorageSchema['settings'] };
 
   return settings || DEFAULT_SETTINGS;
 }
@@ -70,14 +72,14 @@ export async function saveSettings(settings: Partial<StorageSchema['settings']>)
   const currentSettings = await getSettings();
   const newSettings = { ...currentSettings, ...settings };
 
-  await chrome.storage.local.set({ [SETTINGS_KEY]: newSettings });
+  await browser.storage.local.set({ [SETTINGS_KEY]: newSettings });
 }
 
 export async function getStorageUsage(): Promise<{ bytesInUse: number; quota: number }> {
-  const bytesInUse = await chrome.storage.local.getBytesInUse();
+  const bytesInUse = await browser.storage.local.getBytesInUse(null);
 
   return {
     bytesInUse,
-    quota: chrome.storage.local.QUOTA_BYTES || Infinity
+    quota: (browser.storage.local as any).QUOTA_BYTES || Infinity
   };
 }

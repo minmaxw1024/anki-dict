@@ -24,6 +24,8 @@ export interface Definition {
   examples: string[];
 }
 
+export type ThemeId = 'duolingo' | 'british';
+
 export interface StorageSchema {
   words: {
     [word: string]: WordEntry;
@@ -31,12 +33,23 @@ export interface StorageSchema {
   settings: {
     autoSave: boolean;
     maxCacheAge: number;
+    theme: ThemeId;
   };
 }
 
 export interface LookupRequest {
-  action: 'lookup';
+  action: "lookup";
   word: string;
+}
+
+export interface FetchHtmlRequest {
+  action: "fetch-html";
+  url: string;
+}
+
+export interface SaveWordRequest {
+  action: "save";
+  data: WordEntry;
 }
 
 export interface LookupResponse {
@@ -45,4 +58,21 @@ export interface LookupResponse {
   error?: string;
 }
 
-export type MessageRequest = LookupRequest;
+export interface FetchHtmlResponse {
+  success: boolean;
+  html?: string;
+  error?: string;
+}
+
+export interface FetchAudioRequest {
+  action: "fetch-audio";
+  url: string;
+}
+
+export interface FetchAudioResponse {
+  success: boolean;
+  dataUrl?: string;
+  error?: string;
+}
+
+export type MessageRequest = LookupRequest | FetchHtmlRequest | SaveWordRequest | FetchAudioRequest;
