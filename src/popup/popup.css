@@ -180,11 +180,19 @@ header h1 {
     box-shadow: 0 4px 0 #e53535;
 }
 
-.btn-danger:hover {
+.btn-danger:disabled {
+    background: var(--ad-border);
+    border-color: var(--ad-border-dark);
+    box-shadow: 0 4px 0 var(--ad-border-dark);
+    color: var(--ad-text-muted);
+    cursor: not-allowed;
+}
+
+.btn-danger:hover:not(:disabled) {
     background: #ff6060;
 }
 
-.btn-danger:active {
+.btn-danger:active:not(:disabled) {
     box-shadow: none;
     transform: translateY(4px);
 }
