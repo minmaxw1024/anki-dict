@@ -1,4 +1,5 @@
 import type { WordEntry } from './types';
+import { escapeHtml } from './utils';
 
 export function generateAnkiCSV(words: WordEntry[]): string {
   const header = [
@@ -69,15 +70,6 @@ function formatExamples(word: WordEntry): string {
     .join('');
 
   return `<ul>${listItems}</ul>`;
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
 }
 
 function escapeCSVField(text: string): string {

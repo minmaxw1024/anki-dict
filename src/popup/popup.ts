@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill';
 import { getAllWords, deleteWord, clearAllWords, getSettings } from '../lib/storage';
 import { generateAnkiCSV } from '../lib/csv-exporter';
 import { applyThemeToDocument } from '../lib/themes';
+import { escapeHtml } from '../lib/utils';
 import type { WordEntry } from '../lib/types';
 
 let allWords: WordEntry[] = [];
@@ -172,12 +173,6 @@ async function clearAll(): Promise<void> {
   await clearAllWords();
   selectedWords.clear();
   await loadWords();
-}
-
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 document.getElementById('select-all')?.addEventListener('click', selectAll);

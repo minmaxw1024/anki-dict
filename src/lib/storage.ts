@@ -75,11 +75,13 @@ export async function saveSettings(settings: Partial<StorageSchema['settings']>)
   await browser.storage.local.set({ [SETTINGS_KEY]: newSettings });
 }
 
+const CHROME_LOCAL_STORAGE_QUOTA = 10_485_760; // 10 MB
+
 export async function getStorageUsage(): Promise<{ bytesInUse: number; quota: number }> {
   const bytesInUse = await browser.storage.local.getBytesInUse(null);
 
   return {
     bytesInUse,
-    quota: (browser.storage.local as any).QUOTA_BYTES || Infinity
+    quota: CHROME_LOCAL_STORAGE_QUOTA,
   };
 }

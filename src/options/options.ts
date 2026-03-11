@@ -1,6 +1,7 @@
 import { getSettings, saveSettings } from '../lib/storage';
 import { THEMES, THEME_IDS, applyThemeToDocument } from '../lib/themes';
 import { ANKI_TEMPLATE_SECTIONS } from '../lib/anki-template';
+import { escapeHtml } from '../lib/utils';
 import type { ThemeId } from '../lib/types';
 
 let currentTheme: ThemeId = 'duolingo';
@@ -118,12 +119,6 @@ function renderTemplateSteps(): void {
       });
     });
   });
-}
-
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 init();

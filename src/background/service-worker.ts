@@ -2,72 +2,62 @@ import browser from 'webextension-polyfill';
 import { saveWord, getWord } from "../lib/storage";
 import type {
   MessageRequest,
+  WordEntry,
   LookupResponse,
   FetchHtmlResponse,
   FetchAudioResponse,
 } from "../lib/types";
 
-browser.runtime.onMessage.addListener(
-  (msg: unknown): Promise<LookupResponse | FetchHtmlResponse | FetchAudioResponse> | undefined => {
-    const message = msg as MessageRequest;
+type MessageResponse = LookupResponse | FetchHtmlResponse | FetchAudioResponse;
 
-    if (message.action === "lookup") {
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown error occurred";
+}
+
+function handleMessage(message: MessageRequest): Promise<MessageResponse> | undefined {
+  switch (message.action) {
+    case "lookup":
       return handleLookup(message.word)
-        .then((data) => ({ success: true, data } as LookupResponse))
-        .catch((error) => {
+        .then((data): LookupResponse => ({ success: true, data: data ?? undefined }))
+        .catch((error): LookupResponse => {
           console.error("Lookup error:", error);
-          return {
-            success: false,
-            error:
-              error instanceof Error ? error.message : "Unknown error occurred",
-          } as LookupResponse;
+          return { success: false, error: getErrorMessage(error) };
         });
-    }
 
-    if (message.action === "save") {
+    case "save":
       return saveWord(message.data)
-        .then(() => ({ success: true } as LookupResponse))
-        .catch((error) => {
+        .then((): LookupResponse => ({ success: true }))
+        .catch((error): LookupResponse => {
           console.error("Save error:", error);
-          return {
-            success: false,
-            error:
-              error instanceof Error ? error.message : "Unknown error occurred",
-          } as LookupResponse;
+          return { success: false, error: getErrorMessage(error) };
         });
-    }
 
-    if (message.action === "fetch-html") {
+    case "fetch-html":
       return handleFetchHtml(message.url)
-        .then((html) => ({ success: true, html } as FetchHtmlResponse))
-        .catch((error) => {
+        .then((html): FetchHtmlResponse => ({ success: true, html }))
+        .catch((error): FetchHtmlResponse => {
           console.error("Fetch error:", error);
-          return {
-            success: false,
-            error:
-              error instanceof Error ? error.message : "Unknown error occurred",
-          } as FetchHtmlResponse;
+          return { success: false, error: getErrorMessage(error) };
         });
-    }
 
-    if (message.action === "fetch-audio") {
+    case "fetch-audio":
       return handleFetchAudio(message.url)
-        .then((dataUrl) => ({ success: true, dataUrl } as FetchAudioResponse))
-        .catch((error) => {
+        .then((dataUrl): FetchAudioResponse => ({ success: true, dataUrl }))
+        .catch((error): FetchAudioResponse => {
           console.error("Audio fetch error:", error);
-          return {
-            success: false,
-            error:
-              error instanceof Error ? error.message : "Unknown error occurred",
-          } as FetchAudioResponse;
+          return { success: false, error: getErrorMessage(error) };
         });
-    }
 
-    return undefined;
-  },
+    default:
+      return undefined;
+  }
+}
+
+browser.runtime.onMessage.addListener(
+  (msg: unknown) => handleMessage(msg as MessageRequest),
 );
 
-async function handleLookup(word: string): Promise<any> {
+async function handleLookup(word: string): Promise<WordEntry | null> {
   const cleanWord = word.toLowerCase().trim();
 
   if (!cleanWord) {

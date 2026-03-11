@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 import type { WordEntry, FetchAudioResponse } from '../lib/types';
+import { escapeHtml } from '../lib/utils';
 
 const MODAL_ID = 'anki-dict-modal';
 
@@ -172,12 +173,6 @@ function createDefinitionsHTML(wordEntry: WordEntry): string {
       `;
     })
     .join('');
-}
-
-function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 async function playAudio(url: string): Promise<void> {
