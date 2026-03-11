@@ -3,6 +3,7 @@ import { getAllWords, deleteWord, clearAllWords, getSettings } from '../lib/stor
 import { generateAnkiCSV } from '../lib/csv-exporter';
 import { applyThemeToDocument } from '../lib/themes';
 import { escapeHtml } from '../lib/utils';
+import { isAvailable, ensureDeckAndModel, addNotes } from '../lib/anki-connect';
 import type { WordEntry } from '../lib/types';
 
 let allWords: WordEntry[] = [];
@@ -120,9 +121,11 @@ function updateStats(): void {
 function updateActionButtons(): void {
   const noSelection = selectedWords.size === 0;
   const exportBtn = document.getElementById('export-btn') as HTMLButtonElement | null;
+  const sendToAnkiBtn = document.getElementById('send-to-anki') as HTMLButtonElement | null;
   const deleteSelectedBtn = document.getElementById('delete-selected') as HTMLButtonElement | null;
 
   if (exportBtn) exportBtn.disabled = noSelection;
+  if (sendToAnkiBtn) sendToAnkiBtn.disabled = noSelection;
   if (deleteSelectedBtn) deleteSelectedBtn.disabled = noSelection;
 }
 
@@ -177,6 +180,48 @@ async function clearAll(): Promise<void> {
   await loadWords();
 }
 
+async function sendToAnki(): Promise<void> {
+  if (selectedWords.size === 0) {
+    alert('Please select at least one word');
+    return;
+  }
+
+  const btn = document.getElementById('send-to-anki') as HTMLButtonElement | null;
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Connecting...';
+  }
+
+  try {
+    const available = await isAvailable();
+    if (!available) {
+      alert('Cannot connect to AnkiConnect.\n\nMake sure:\n1. Anki is running\n2. AnkiConnect add-on is installed (code: 2055492159)');
+      return;
+    }
+
+    if (btn) btn.textContent = 'Sending...';
+
+    await ensureDeckAndModel();
+
+    const wordsToSend = allWords.filter(w => selectedWords.has(w.word));
+    const result = await addNotes(wordsToSend);
+
+    let message = `Added ${result.added} word${result.added !== 1 ? 's' : ''} to Anki.`;
+    if (result.duplicates > 0) {
+      message += `\n${result.duplicates} duplicate${result.duplicates !== 1 ? 's' : ''} skipped.`;
+    }
+    alert(message);
+  } catch (error) {
+    console.error('AnkiConnect error:', error);
+    alert(`Failed to send to Anki: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  } finally {
+    if (btn) {
+      btn.textContent = 'Send to Anki';
+      btn.disabled = selectedWords.size === 0;
+    }
+  }
+}
+
 async function deleteSelected(): Promise<void> {
   if (selectedWords.size === 0) return;
 
@@ -193,6 +238,7 @@ async function deleteSelected(): Promise<void> {
 document.getElementById('select-all')?.addEventListener('click', selectAll);
 document.getElementById('select-none')?.addEventListener('click', selectNone);
 document.getElementById('export-btn')?.addEventListener('click', exportToAnki);
+document.getElementById('send-to-anki')?.addEventListener('click', sendToAnki);
 document.getElementById('delete-selected')?.addEventListener('click', deleteSelected);
 document.getElementById('clear-all')?.addEventListener('click', clearAll);
 document.getElementById('settings-btn')?.addEventListener('click', () => {

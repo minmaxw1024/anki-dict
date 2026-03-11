@@ -14,9 +14,9 @@ export function generateAnkiCSV(words: WordEntry[]): string {
   return '\uFEFF' + header + '\n' + rows.join('\n');
 }
 
-const CAMBRIDGE_BASE = 'https://dictionary.cambridge.org';
+export const CAMBRIDGE_BASE = 'https://dictionary.cambridge.org';
 
-function getFullAudioUrl(audioUrl: string | undefined): string {
+export function getFullAudioUrl(audioUrl: string | undefined): string {
   if (!audioUrl) return '';
   return audioUrl.startsWith('http') ? audioUrl : `${CAMBRIDGE_BASE}${audioUrl}`;
 }
@@ -44,7 +44,7 @@ function formatWordRow(word: WordEntry): string {
   return fields.join('\t');
 }
 
-function formatDefinitions(word: WordEntry): string {
+export function formatDefinitions(word: WordEntry): string {
   return word.definitions
     .map(def => {
       const parts: string[] = [];
@@ -66,7 +66,7 @@ function formatDefinitions(word: WordEntry): string {
     .join('<br><br>');
 }
 
-function formatExamples(word: WordEntry): string {
+export function formatExamples(word: WordEntry): string {
   const allExamples = word.definitions
     .flatMap(def => def.examples)
     .slice(0, 5);
