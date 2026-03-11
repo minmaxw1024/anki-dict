@@ -6,7 +6,7 @@ export function generateAnkiCSV(words: WordEntry[]): string {
     '# separator:tab',
     '# html:true',
     '# tags:cambridge-dictionary anki-dict-extension',
-    'Word\tBritish Pronunciation\tAmerican Pronunciation\tDefinitions\tExamples\tSource'
+    'Word\tBritish Pronunciation\tAmerican Pronunciation\tBritish Audio\tAmerican Audio\tDefinitions\tExamples\tSource'
   ].join('\n');
 
   const rows = words.map(word => formatWordRow(word));
@@ -14,18 +14,28 @@ export function generateAnkiCSV(words: WordEntry[]): string {
   return '\uFEFF' + header + '\n' + rows.join('\n');
 }
 
+const CAMBRIDGE_BASE = 'https://dictionary.cambridge.org';
+
+function getFullAudioUrl(audioUrl: string | undefined): string {
+  if (!audioUrl) return '';
+  return audioUrl.startsWith('http') ? audioUrl : `${CAMBRIDGE_BASE}${audioUrl}`;
+}
+
 function formatWordRow(word: WordEntry): string {
   const ukPron = word.pronunciations.uk?.ipa || '';
   const usPron = word.pronunciations.us?.ipa || '';
+  const ukAudio = getFullAudioUrl(word.pronunciations.uk?.audioUrl);
+  const usAudio = getFullAudioUrl(word.pronunciations.us?.audioUrl);
 
   const definitions = formatDefinitions(word);
-
   const examples = formatExamples(word);
 
   const fields = [
     word.word,
     ukPron,
     usPron,
+    ukAudio,
+    usAudio,
     escapeCSVField(definitions),
     escapeCSVField(examples),
     word.sourceUrl

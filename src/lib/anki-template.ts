@@ -28,12 +28,14 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
     {{#British Pronunciation}}
     <span class="ad-pron ad-pron--uk">
       <span class="ad-pron-flag">🇬🇧</span>
+      {{#British Audio}}<span class="ad-audio-btn" onclick="new Audio('{{British Audio}}').play()">🔊</span>{{/British Audio}}
       <span class="ad-pron-ipa">{{British Pronunciation}}</span>
     </span>
     {{/British Pronunciation}}
     {{#American Pronunciation}}
     <span class="ad-pron ad-pron--us">
       <span class="ad-pron-flag">🇺🇸</span>
+      {{#American Audio}}<span class="ad-audio-btn" onclick="new Audio('{{American Audio}}').play()">🔊</span>{{/American Audio}}
       <span class="ad-pron-ipa">{{American Pronunciation}}</span>
     </span>
     {{/American Pronunciation}}
@@ -44,6 +46,7 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
   <div class="ad-prons">
     <span class="ad-pron ad-pron--uk">
       <span class="ad-pron-flag">🇬🇧</span>
+      {{#British Audio}}<span class="ad-audio-btn" onclick="new Audio('{{British Audio}}').play()">🔊</span>{{/British Audio}}
       <span class="ad-pron-ipa">{{British Pronunciation}}</span>
     </span>
   </div>
@@ -53,6 +56,7 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
   <div class="ad-prons">
     <span class="ad-pron ad-pron--us">
       <span class="ad-pron-flag">🇺🇸</span>
+      {{#American Audio}}<span class="ad-audio-btn" onclick="new Audio('{{American Audio}}').play()">🔊</span>{{/American Audio}}
       <span class="ad-pron-ipa">{{American Pronunciation}}</span>
     </span>
   </div>
@@ -149,6 +153,18 @@ const CARD_CSS = `.card {
   letter-spacing: 0.02em;
 }
 
+.ad-audio-btn {
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  user-select: none;
+}
+
+.ad-audio-btn:hover {
+  opacity: 1;
+}
+
 /* Definitions */
 .ad-definitions {
   font-size: 15px;
@@ -237,6 +253,8 @@ const CARD_CSS = `.card {
 const FIELD_LIST = `Word
 British Pronunciation
 American Pronunciation
+British Audio
+American Audio
 Definitions
 Examples
 Source`.trim();
