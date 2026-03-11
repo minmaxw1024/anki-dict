@@ -10,13 +10,15 @@ import {
 import { buildSync } from "esbuild";
 
 const targetBrowser = process.env.BROWSER || "chrome";
+// Edge is Chromium-based and uses the same manifest as Chrome
+const isFirefox = targetBrowser === "firefox";
 
 function generateManifest(distDir: string): void {
   const manifest = JSON.parse(
     readFileSync(resolve(__dirname, "src/manifest.json"), "utf-8"),
   );
 
-  if (targetBrowser === "firefox") {
+  if (isFirefox) {
     // Firefox MV3 uses background.scripts instead of service_worker
     manifest.background = {
       scripts: ["background/service-worker.js"],
