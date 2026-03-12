@@ -3,11 +3,13 @@ import type { WordEntry, StorageSchema } from './types';
 
 const WORDS_KEY = 'words';
 const SETTINGS_KEY = 'settings';
+const EXPORTED_WORDS_KEY = 'exportedWords';
 
 const DEFAULT_SETTINGS: StorageSchema['settings'] = {
   autoSave: true,
   maxCacheAge: 30,
   theme: 'duolingo',
+  ankiConnectUrl: 'http://127.0.0.1:8765',
 };
 
 export async function saveWord(wordEntry: WordEntry): Promise<void> {
@@ -73,6 +75,17 @@ export async function saveSettings(settings: Partial<StorageSchema['settings']>)
   const newSettings = { ...currentSettings, ...settings };
 
   await browser.storage.local.set({ [SETTINGS_KEY]: newSettings });
+}
+
+export async function getExportedWords(): Promise<Set<string>> {
+  const data = await browser.storage.local.get(EXPORTED_WORDS_KEY) as { exportedWords?: string[] };
+  return new Set(data.exportedWords || []);
+}
+
+export async function markWordsExported(words: string[]): Promise<void> {
+  const existing = await getExportedWords();
+  words.forEach(w => existing.add(w));
+  await browser.storage.local.set({ [EXPORTED_WORDS_KEY]: [...existing] });
 }
 
 const CHROME_LOCAL_STORAGE_QUOTA = 10_485_760; // 10 MB

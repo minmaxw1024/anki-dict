@@ -1,8 +1,9 @@
 import type { WordEntry } from './types';
 import { formatDefinitions, formatExamples, getFullAudioUrl } from './csv-exporter';
 import { ANKI_TEMPLATE_SECTIONS } from './anki-template';
+import { getSettings } from './storage';
 
-const ANKI_CONNECT_URL = 'http://127.0.0.1:8765';
+const DEFAULT_ANKI_CONNECT_URL = 'http://127.0.0.1:8765';
 const DECK_NAME = 'Anki Dict';
 const MODEL_NAME = 'Anki Dict';
 
@@ -11,8 +12,14 @@ interface AnkiConnectResponse {
   error: string | null;
 }
 
-async function invoke<T = unknown>(action: string, params: Record<string, unknown> = {}): Promise<T> {
-  const response = await fetch(ANKI_CONNECT_URL, {
+async function getAnkiConnectUrl(): Promise<string> {
+  const settings = await getSettings();
+  return settings.ankiConnectUrl || DEFAULT_ANKI_CONNECT_URL;
+}
+
+async function invoke<T = unknown>(action: string, params: Record<string, unknown> = {}, url?: string): Promise<T> {
+  const ankiUrl = url || await getAnkiConnectUrl();
+  const response = await fetch(ankiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action, version: 6, params }),
@@ -30,6 +37,24 @@ export async function isAvailable(): Promise<boolean> {
     return version >= 6;
   } catch {
     return false;
+  }
+}
+
+export interface TestConnectionResult {
+  success: boolean;
+  version?: number;
+  error?: string;
+}
+
+export async function testConnection(url?: string): Promise<TestConnectionResult> {
+  try {
+    const version = await invoke<number>('version', {}, url);
+    if (version >= 6) {
+      return { success: true, version };
+    }
+    return { success: false, error: `AnkiConnect version ${version} is too old (need v6+)` };
+  } catch {
+    return { success: false, error: 'Cannot connect to AnkiConnect. Make sure Anki is running and AnkiConnect add-on is installed.' };
   }
 }
 
