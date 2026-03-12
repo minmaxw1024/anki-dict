@@ -1,7 +1,7 @@
 import { getSettings, saveSettings } from '../lib/storage';
 import { THEMES, THEME_IDS, applyThemeToDocument } from '../lib/themes';
 import { ANKI_TEMPLATE_SECTIONS } from '../lib/anki-template';
-import { testConnection } from '../lib/anki-connect';
+import { testConnection, getDeckNames, getModelNames } from '../lib/anki-connect';
 import { escapeHtml } from '../lib/utils';
 import type { ThemeId } from '../lib/types';
 
@@ -14,7 +14,7 @@ async function init(): Promise<void> {
   applyThemeToDocument(currentTheme);
   renderThemeCards();
   renderTemplateSteps();
-  initAnkiConnect(settings.ankiConnectUrl);
+  initAnkiConnect(settings);
 }
 
 function renderThemeCards(): void {
@@ -123,21 +123,37 @@ function renderTemplateSteps(): void {
   });
 }
 
-function initAnkiConnect(savedUrl?: string): void {
+function initAnkiConnect(settings: { ankiConnectUrl?: string; ankiDeckName?: string; ankiModelName?: string }): void {
   const urlInput = document.getElementById('anki-connect-url') as HTMLInputElement | null;
+  const deckInput = document.getElementById('anki-deck-name') as HTMLInputElement | null;
+  const modelInput = document.getElementById('anki-model-name') as HTMLInputElement | null;
   const testBtn = document.getElementById('anki-connect-test') as HTMLButtonElement | null;
 
-  if (!urlInput || !testBtn) return;
+  if (!urlInput || !deckInput || !modelInput || !testBtn) return;
 
-  if (savedUrl) {
-    urlInput.value = savedUrl;
-  }
+  if (settings.ankiConnectUrl) urlInput.value = settings.ankiConnectUrl;
+  if (settings.ankiDeckName) deckInput.value = settings.ankiDeckName;
+  if (settings.ankiModelName) modelInput.value = settings.ankiModelName;
 
-  // Save URL on change
+  // Save on change
   urlInput.addEventListener('change', async () => {
     const url = urlInput.value.trim() || 'http://127.0.0.1:8765';
     urlInput.value = url;
     await saveSettings({ ankiConnectUrl: url });
+    showSaveToast();
+  });
+
+  deckInput.addEventListener('change', async () => {
+    const name = deckInput.value.trim() || 'Anki Dict';
+    deckInput.value = name;
+    await saveSettings({ ankiDeckName: name });
+    showSaveToast();
+  });
+
+  modelInput.addEventListener('change', async () => {
+    const name = modelInput.value.trim() || 'Anki Dict';
+    modelInput.value = name;
+    await saveSettings({ ankiModelName: name });
     showSaveToast();
   });
 
@@ -152,6 +168,7 @@ function initAnkiConnect(savedUrl?: string): void {
 
     if (result.success) {
       setAnkiStatus('success', `Connected — AnkiConnect v${result.version}`);
+      populateAnkiLists();
     } else {
       setAnkiStatus('error', result.error || 'Connection failed');
     }
@@ -159,6 +176,24 @@ function initAnkiConnect(savedUrl?: string): void {
     testBtn.disabled = false;
     testBtn.textContent = 'Test Connection';
   });
+}
+
+async function populateAnkiLists(): Promise<void> {
+  try {
+    const [decks, models] = await Promise.all([getDeckNames(), getModelNames()]);
+
+    const deckList = document.getElementById('anki-deck-list');
+    const modelList = document.getElementById('anki-model-list');
+
+    if (deckList) {
+      deckList.innerHTML = decks.map(d => `<option value="${escapeHtml(d)}">`).join('');
+    }
+    if (modelList) {
+      modelList.innerHTML = models.map(m => `<option value="${escapeHtml(m)}">`).join('');
+    }
+  } catch {
+    // silently fail - datalist is just a convenience
+  }
 }
 
 function setAnkiStatus(state: 'success' | 'error' | 'testing', message: string): void {
