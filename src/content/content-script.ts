@@ -8,6 +8,7 @@ import {
   updateModalLoading,
 } from "./modal";
 import { parseCambridgeHtml, getCambridgeUrl } from "../lib/dictionary-scraper";
+import { parseFreeDictionaryJson, getFreeDictionaryUrl } from "../lib/free-dictionary";
 import { getSettings } from "../lib/storage";
 import { applyThemeToElement } from "../lib/themes";
 import type {
@@ -89,22 +90,42 @@ async function handleWordLookup(
       return;
     }
 
-    // Fetch HTML via service worker (has host_permissions)
-    const fetchResponse: FetchHtmlResponse = await browser.runtime.sendMessage({
-      action: "fetch-html",
-      url: getCambridgeUrl(word),
-    });
+    let wordEntry: WordEntry | null = null;
 
-    if (!fetchResponse.success || !fetchResponse.html) {
-      updateModalError(
-        currentModal,
-        fetchResponse.error || "Failed to fetch dictionary page",
-      );
-      return;
+    // Try Cambridge Dictionary first
+    try {
+      const fetchResponse: FetchHtmlResponse = await browser.runtime.sendMessage({
+        action: "fetch-html",
+        url: getCambridgeUrl(word),
+      });
+
+      if (fetchResponse.success && fetchResponse.html) {
+        wordEntry = parseCambridgeHtml(fetchResponse.html, word);
+      }
+    } catch {
+      // Cambridge failed, will try fallback
     }
 
-    // Parse HTML in content script (has DOMParser)
-    const wordEntry = parseCambridgeHtml(fetchResponse.html, word);
+    // Fallback to Free Dictionary API
+    if (!wordEntry) {
+      try {
+        const fetchResponse: FetchHtmlResponse = await browser.runtime.sendMessage({
+          action: "fetch-html",
+          url: getFreeDictionaryUrl(word),
+        });
+
+        if (fetchResponse.success && fetchResponse.html) {
+          wordEntry = parseFreeDictionaryJson(fetchResponse.html, word);
+        }
+      } catch {
+        // Fallback also failed
+      }
+    }
+
+    if (!wordEntry) {
+      updateModalError(currentModal, `No definitions found for "${word}"`);
+      return;
+    }
 
     // Save to cache via service worker
     await browser.runtime.sendMessage({
