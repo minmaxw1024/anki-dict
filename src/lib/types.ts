@@ -34,7 +34,9 @@ export interface StorageSchema {
     autoSave: boolean;
     maxCacheAge: number;
     theme: ThemeId;
+    ankiConnectUrl: string;
   };
+  exportedWords: string[];
 }
 
 export interface LookupRequest {

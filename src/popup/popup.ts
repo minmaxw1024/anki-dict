@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import { getAllWords, deleteWord, clearAllWords, getSettings } from '../lib/storage';
+import { getAllWords, deleteWord, clearAllWords, getSettings, getExportedWords, markWordsExported } from '../lib/storage';
 import { generateAnkiCSV } from '../lib/csv-exporter';
 import { applyThemeToDocument } from '../lib/themes';
 import { escapeHtml } from '../lib/utils';
@@ -7,6 +7,7 @@ import { isAvailable, ensureDeckAndModel, addNotes } from '../lib/anki-connect';
 import type { WordEntry } from '../lib/types';
 
 let allWords: WordEntry[] = [];
+let exportedWords = new Set<string>();
 const selectedWords = new Set<string>();
 
 async function loadTheme(): Promise<void> {
@@ -16,6 +17,7 @@ async function loadTheme(): Promise<void> {
 
 async function loadWords(): Promise<void> {
   allWords = await getAllWords();
+  exportedWords = await getExportedWords();
   renderWordList();
   updateStats();
 }
@@ -49,6 +51,7 @@ function renderWordList(): void {
 
 function createWordItem(word: WordEntry): string {
   const isChecked = selectedWords.has(word.word);
+  const isExported = exportedWords.has(word.word);
   const firstDef = word.definitions[0];
   const dateStr = new Date(word.timestamp).toLocaleDateString();
 
@@ -69,6 +72,7 @@ function createWordItem(word: WordEntry): string {
           <span class="word-pos">${escapeHtml(firstDef.partOfSpeech)}</span>
           <span class="word-date">${dateStr}</span>
           <span class="word-def-count">${word.definitions.length} definition${word.definitions.length > 1 ? 's' : ''}</span>
+          ${isExported ? '<span class="word-exported-badge">Exported</span>' : ''}
         </div>
         <div class="word-preview">
           ${escapeHtml(firstDef.meaning.substring(0, 100))}${firstDef.meaning.length > 100 ? '...' : ''}
@@ -141,6 +145,17 @@ function selectNone(): void {
   updateActionButtons();
 }
 
+function selectUnexported(): void {
+  selectedWords.clear();
+  allWords.forEach(word => {
+    if (!exportedWords.has(word.word)) {
+      selectedWords.add(word.word);
+    }
+  });
+  renderWordList();
+  updateActionButtons();
+}
+
 async function exportToAnki(): Promise<void> {
   if (selectedWords.size === 0) {
     alert('Please select at least one word to export');
@@ -162,6 +177,10 @@ async function exportToAnki(): Promise<void> {
     link.click();
 
     URL.revokeObjectURL(url);
+
+    await markWordsExported(wordsToExport.map(w => w.word));
+    exportedWords = await getExportedWords();
+    renderWordList();
 
     alert(`Successfully exported ${wordsToExport.length} word${wordsToExport.length !== 1 ? 's' : ''} to ${filename}`);
   } catch (error) {
@@ -206,6 +225,10 @@ async function sendToAnki(): Promise<void> {
     const wordsToSend = allWords.filter(w => selectedWords.has(w.word));
     const result = await addNotes(wordsToSend);
 
+    await markWordsExported(wordsToSend.map(w => w.word));
+    exportedWords = await getExportedWords();
+    renderWordList();
+
     let message = `Added ${result.added} word${result.added !== 1 ? 's' : ''} to Anki.`;
     if (result.duplicates > 0) {
       message += `\n${result.duplicates} duplicate${result.duplicates !== 1 ? 's' : ''} skipped.`;
@@ -237,6 +260,7 @@ async function deleteSelected(): Promise<void> {
 
 document.getElementById('select-all')?.addEventListener('click', selectAll);
 document.getElementById('select-none')?.addEventListener('click', selectNone);
+document.getElementById('select-unexported')?.addEventListener('click', selectUnexported);
 document.getElementById('export-btn')?.addEventListener('click', exportToAnki);
 document.getElementById('send-to-anki')?.addEventListener('click', sendToAnki);
 document.getElementById('delete-selected')?.addEventListener('click', deleteSelected);

@@ -27,6 +27,30 @@
                 </section>
 
                 <section class="section">
+                    <h2 class="section-title">AnkiConnect</h2>
+                    <p class="section-desc">Configure and test the connection to AnkiConnect.</p>
+                    <div class="anki-connect-config">
+                        <div class="anki-connect-row">
+                            <label class="anki-connect-label" for="anki-connect-url">Server URL</label>
+                            <div class="anki-connect-input-group">
+                                <input
+                                    type="text"
+                                    id="anki-connect-url"
+                                    class="anki-connect-input"
+                                    value="http://127.0.0.1:8765"
+                                    placeholder="http://127.0.0.1:8765"
+                                />
+                                <button id="anki-connect-test" class="btn-test">Test Connection</button>
+                            </div>
+                        </div>
+                        <div id="anki-connect-status" class="anki-connect-status hidden">
+                            <span class="status-icon"></span>
+                            <span class="status-text"></span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section">
                     <h2 class="section-title">Anki Card Template</h2>
                     <p class="section-desc">
                         Set up a matching note type in Anki so imported cards display with the same visual style.

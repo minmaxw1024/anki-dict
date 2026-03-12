@@ -109,11 +109,16 @@ header h1 {
 
 .actions {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     padding: 14px 16px;
     background: var(--ad-bg);
     border-bottom: 2px solid var(--ad-border);
-    flex-wrap: wrap;
+}
+
+.actions-row {
+    display: flex;
+    gap: 8px;
 }
 
 .btn {
@@ -195,6 +200,35 @@ header h1 {
 .btn-danger:active:not(:disabled) {
     box-shadow: none;
     transform: translateY(4px);
+}
+
+.btn-outline {
+    background: var(--ad-bg);
+    color: var(--ad-primary);
+    border: 2px solid var(--ad-primary-border);
+    box-shadow: 0 4px 0 var(--ad-primary-border);
+}
+
+.btn-outline:hover {
+    background: var(--ad-hover-bg);
+    border-color: var(--ad-primary);
+}
+
+.btn-outline:active {
+    box-shadow: none;
+    transform: translateY(4px);
+}
+
+.word-exported-badge {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    background: var(--ad-primary-bg);
+    color: var(--ad-primary-dark);
+    border: 1.5px solid var(--ad-primary-border);
+    padding: 1px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
 }
 
 .empty-state {

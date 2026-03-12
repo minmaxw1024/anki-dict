@@ -1,6 +1,7 @@
 import { getSettings, saveSettings } from '../lib/storage';
 import { THEMES, THEME_IDS, applyThemeToDocument } from '../lib/themes';
 import { ANKI_TEMPLATE_SECTIONS } from '../lib/anki-template';
+import { testConnection } from '../lib/anki-connect';
 import { escapeHtml } from '../lib/utils';
 import type { ThemeId } from '../lib/types';
 
@@ -13,6 +14,7 @@ async function init(): Promise<void> {
   applyThemeToDocument(currentTheme);
   renderThemeCards();
   renderTemplateSteps();
+  initAnkiConnect(settings.ankiConnectUrl);
 }
 
 function renderThemeCards(): void {
@@ -119,6 +121,58 @@ function renderTemplateSteps(): void {
       });
     });
   });
+}
+
+function initAnkiConnect(savedUrl?: string): void {
+  const urlInput = document.getElementById('anki-connect-url') as HTMLInputElement | null;
+  const testBtn = document.getElementById('anki-connect-test') as HTMLButtonElement | null;
+
+  if (!urlInput || !testBtn) return;
+
+  if (savedUrl) {
+    urlInput.value = savedUrl;
+  }
+
+  // Save URL on change
+  urlInput.addEventListener('change', async () => {
+    const url = urlInput.value.trim() || 'http://127.0.0.1:8765';
+    urlInput.value = url;
+    await saveSettings({ ankiConnectUrl: url });
+    showSaveToast();
+  });
+
+  testBtn.addEventListener('click', async () => {
+    const url = urlInput.value.trim();
+    testBtn.disabled = true;
+    testBtn.textContent = 'Testing...';
+
+    setAnkiStatus('testing', 'Testing connection...');
+
+    const result = await testConnection(url);
+
+    if (result.success) {
+      setAnkiStatus('success', `Connected — AnkiConnect v${result.version}`);
+    } else {
+      setAnkiStatus('error', result.error || 'Connection failed');
+    }
+
+    testBtn.disabled = false;
+    testBtn.textContent = 'Test Connection';
+  });
+}
+
+function setAnkiStatus(state: 'success' | 'error' | 'testing', message: string): void {
+  const statusEl = document.getElementById('anki-connect-status');
+  if (!statusEl) return;
+
+  statusEl.className = `anki-connect-status ${state}`;
+
+  const iconMap = { success: '\u2714', error: '\u2718', testing: '\u23F3' };
+  const iconEl = statusEl.querySelector('.status-icon');
+  const textEl = statusEl.querySelector('.status-text');
+
+  if (iconEl) iconEl.textContent = iconMap[state];
+  if (textEl) textEl.textContent = message;
 }
 
 init();
