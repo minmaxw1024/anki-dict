@@ -4,21 +4,25 @@ import { ANKI_TEMPLATE_SECTIONS } from './anki-template';
 import { getSettings } from './storage';
 
 const DEFAULT_ANKI_CONNECT_URL = 'http://127.0.0.1:8765';
-const DECK_NAME = 'Anki Dict';
-const MODEL_NAME = 'Anki Dict';
+const DEFAULT_DECK_NAME = 'Anki Dict';
+const DEFAULT_MODEL_NAME = 'Anki Dict';
 
 interface AnkiConnectResponse {
   result: unknown;
   error: string | null;
 }
 
-async function getAnkiConnectUrl(): Promise<string> {
+async function getAnkiConfig() {
   const settings = await getSettings();
-  return settings.ankiConnectUrl || DEFAULT_ANKI_CONNECT_URL;
+  return {
+    url: settings.ankiConnectUrl || DEFAULT_ANKI_CONNECT_URL,
+    deckName: settings.ankiDeckName || DEFAULT_DECK_NAME,
+    modelName: settings.ankiModelName || DEFAULT_MODEL_NAME,
+  };
 }
 
 async function invoke<T = unknown>(action: string, params: Record<string, unknown> = {}, url?: string): Promise<T> {
-  const ankiUrl = url || await getAnkiConnectUrl();
+  const ankiUrl = url || (await getAnkiConfig()).url;
   const response = await fetch(ankiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -59,10 +63,12 @@ export async function testConnection(url?: string): Promise<TestConnectionResult
 }
 
 export async function ensureDeckAndModel(): Promise<void> {
-  await invoke('createDeck', { deck: DECK_NAME });
+  const { deckName, modelName } = await getAnkiConfig();
+
+  await invoke('createDeck', { deck: deckName });
 
   const models = await invoke<string[]>('modelNames');
-  if (models.includes(MODEL_NAME)) return;
+  if (models.includes(modelName)) return;
 
   // Sections: [fields, front, back, css]
   const frontTemplate = ANKI_TEMPLATE_SECTIONS[1].content;
@@ -71,7 +77,7 @@ export async function ensureDeckAndModel(): Promise<void> {
   const fields = ANKI_TEMPLATE_SECTIONS[0].content.split('\n');
 
   await invoke('createModel', {
-    modelName: MODEL_NAME,
+    modelName,
     inOrderFields: fields,
     css,
     isCloze: false,
@@ -94,22 +100,30 @@ function wordToNoteFields(word: WordEntry): Record<string, string> {
   };
 }
 
-function buildNote(word: WordEntry) {
+function buildNote(word: WordEntry, deckName: string, modelName: string) {
   return {
-    deckName: DECK_NAME,
-    modelName: MODEL_NAME,
+    deckName,
+    modelName,
     fields: wordToNoteFields(word),
     options: {
       allowDuplicate: false,
       duplicateScope: 'deck',
       duplicateScopeOptions: {
-        deckName: DECK_NAME,
+        deckName,
         checkChildren: false,
         checkAllModels: false,
       },
     },
     tags: ['cambridge-dictionary', 'anki-dict-extension'],
   };
+}
+
+export async function getDeckNames(): Promise<string[]> {
+  return invoke<string[]>('deckNames');
+}
+
+export async function getModelNames(): Promise<string[]> {
+  return invoke<string[]>('modelNames');
 }
 
 export interface AddNotesResult {
@@ -119,7 +133,8 @@ export interface AddNotesResult {
 }
 
 export async function addNotes(words: WordEntry[]): Promise<AddNotesResult> {
-  const notes = words.map(buildNote);
+  const { deckName, modelName } = await getAnkiConfig();
+  const notes = words.map(w => buildNote(w, deckName, modelName));
   const results = await invoke<(number | null)[]>('addNotes', { notes });
 
   const added = results.filter(r => r !== null).length;

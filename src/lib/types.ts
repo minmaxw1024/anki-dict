@@ -35,6 +35,8 @@ export interface StorageSchema {
     maxCacheAge: number;
     theme: ThemeId;
     ankiConnectUrl: string;
+    ankiDeckName: string;
+    ankiModelName: string;
   };
   exportedWords: string[];
 }

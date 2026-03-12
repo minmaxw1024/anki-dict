@@ -10,6 +10,8 @@ const DEFAULT_SETTINGS: StorageSchema['settings'] = {
   maxCacheAge: 30,
   theme: 'duolingo',
   ankiConnectUrl: 'http://127.0.0.1:8765',
+  ankiDeckName: 'Anki Dict',
+  ankiModelName: 'Anki Dict',
 };
 
 export async function saveWord(wordEntry: WordEntry): Promise<void> {
