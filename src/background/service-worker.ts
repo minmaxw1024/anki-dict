@@ -79,10 +79,10 @@ async function handleFetchHtml(url: string): Promise<string> {
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error("Word not found in Cambridge Dictionary");
+      throw new Error("Word not found");
     }
     throw new Error(
-      `Failed to fetch dictionary page: ${response.status} ${response.statusText}`,
+      `Failed to fetch: ${response.status} ${response.statusText}`,
     );
   }
 
