@@ -15,7 +15,11 @@
       "Bash(curl:*)",
       "mcp__acp__Bash",
       "mcp__acp__Edit",
-      "mcp__acp__Write"
+      "mcp__acp__Write",
+      "Bash(npm run:*)",
+      "WebFetch(domain:git.sr.ht)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:deepwiki.com)"
     ]
   }
 }
