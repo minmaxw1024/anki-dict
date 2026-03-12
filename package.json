@@ -12,9 +12,9 @@
     "build:firefox": "BROWSER=firefox tsc --noEmit && BROWSER=firefox vite build",
     "build:edge": "BROWSER=edge tsc --noEmit && BROWSER=edge vite build",
     "pack": "bun run build && bun run pack:chrome && bun run pack:firefox && bun run pack:edge",
-    "pack:chrome": "cd dist/chrome && zip -r ../anki-dict-chrome.zip .",
-    "pack:firefox": "cd dist/firefox && zip -r ../anki-dict-firefox.zip .",
-    "pack:edge": "cd dist/edge && zip -r ../anki-dict-edge.zip .",
+    "pack:chrome": "node scripts/zip.mjs chrome",
+    "pack:firefox": "node scripts/zip.mjs firefox",
+    "pack:edge": "node scripts/zip.mjs edge",
     "type-check": "tsc --noEmit",
     "preview": "vite preview"
   },
