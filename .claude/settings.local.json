@@ -19,7 +19,10 @@
       "Bash(npm run:*)",
       "WebFetch(domain:git.sr.ht)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:deepwiki.com)"
+      "WebFetch(domain:deepwiki.com)",
+      "Bash(git add src/manifest.json)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ]
   }
 }
