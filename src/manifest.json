@@ -5,8 +5,7 @@
   "description": "Look up English words from Cambridge Dictionary and export to Anki flashcards",
 
   "permissions": [
-    "storage",
-    "activeTab"
+    "storage"
   ],
 
   "host_permissions": [
