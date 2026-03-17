@@ -1,0 +1,217 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --background: #f7f7f7;
+  --foreground: #4b4b4b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-duo-green: #58cc02;
+  --color-duo-green-dark: #43c000;
+  --color-duo-green-hover: #61d800;
+  --color-duo-green-bg: #e5f8cc;
+  --color-duo-blue: #1cb0f6;
+  --color-duo-yellow: #ffc800;
+  --color-duo-border: #e5e5e5;
+  --color-duo-text: #4b4b4b;
+  --color-duo-text-secondary: #777777;
+  --color-duo-text-muted: #afafaf;
+  --color-duo-error: #ff4b4b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Nunito", "Segoe UI", Arial, sans-serif;
+}
+
+/* ─── Anki Card Styles (reused from extension) ─── */
+
+.ad-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #e5e5e5;
+  box-shadow: 0 4px 0 #e5e5e5;
+  padding: 28px;
+  width: 100%;
+  max-width: 520px;
+  box-sizing: border-box;
+}
+
+.ad-word {
+  font-size: 30px;
+  font-weight: 800;
+  color: #58cc02;
+  text-transform: capitalize;
+  margin-bottom: 14px;
+  line-height: 1.2;
+}
+
+.ad-prons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.ad-pron {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border: 2px solid #e5e5e5;
+  background: #f7f7f7;
+}
+
+.ad-pron--uk {
+  background: #e5f8cc;
+  border-color: #c4ed8b;
+  color: #3a8a00;
+}
+
+.ad-pron--us {
+  background: #e0f5ff;
+  border-color: #99dcfa;
+  color: #0077c2;
+}
+
+.ad-pron-ipa {
+  font-family: "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.ad-audio-btn {
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  user-select: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ad-audio-btn:hover {
+  opacity: 1;
+}
+
+.ad-definitions {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4b4b4b;
+  margin-bottom: 16px;
+  border-top: 2px solid #e5e5e5;
+  padding-top: 16px;
+}
+
+.ad-definitions b {
+  color: #1cb0f6;
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ad-definitions .level {
+  display: inline-block;
+  background: #ffc800;
+  color: #5a3e00;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-left: 4px;
+  vertical-align: middle;
+  letter-spacing: 0.04em;
+}
+
+.ad-examples-wrap {
+  background: #f7f7f7;
+  border-radius: 12px;
+  border: 2px solid #e5e5e5;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.ad-examples-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #afafaf;
+  margin-bottom: 8px;
+}
+
+.ad-examples ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.ad-examples li {
+  font-size: 14px;
+  color: #777777;
+  line-height: 1.6;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+.ad-examples li::marker {
+  color: #58cc02;
+}
+
+.ad-source {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.ad-source a {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1cb0f6;
+  text-decoration: none;
+}
+
+.ad-source a:hover {
+  text-decoration: underline;
+}
+
+/* ─── Spinner ─── */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #e5e5e5;
+  border-top-color: #58cc02;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* ─── Progress Bar ─── */
+
+.progress-bar {
+  height: 6px;
+  background: #e5e5e5;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #58cc02, #89e219);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}

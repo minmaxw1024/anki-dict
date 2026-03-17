@@ -22,7 +22,8 @@
       "WebFetch(domain:deepwiki.com)",
       "Bash(git add src/manifest.json)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(cd:*)"
     ]
   }
 }
