@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-import type { WordEntry, FetchAudioResponse } from '../lib/types';
+import type { WordEntry, FetchAudioResponse, PlayAudioResponse } from '../lib/types';
 import { escapeHtml } from '../lib/utils';
 
 const MODAL_ID = 'anki-dict-modal';
@@ -177,6 +177,12 @@ function createDefinitionsHTML(wordEntry: WordEntry): string {
 
 async function playAudio(url: string): Promise<void> {
   try {
+    const played: PlayAudioResponse = await browser.runtime.sendMessage({
+      action: "play-audio",
+      url,
+    });
+    if (played.success) return;
+
     // Fetch audio through the service worker to bypass page CSP restrictions
     const response: FetchAudioResponse = await browser.runtime.sendMessage({
       action: "fetch-audio",

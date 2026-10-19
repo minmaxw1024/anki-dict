@@ -109,14 +109,3 @@ export async function markWordsExported(words: string[]): Promise<void> {
   words.forEach(w => existing.add(w));
   await browser.storage.local.set({ [EXPORTED_WORDS_KEY]: [...existing] });
 }
-
-const CHROME_LOCAL_STORAGE_QUOTA = 10_485_760; // 10 MB
-
-export async function getStorageUsage(): Promise<{ bytesInUse: number; quota: number }> {
-  const bytesInUse = await browser.storage.local.getBytesInUse(null);
-
-  return {
-    bytesInUse,
-    quota: CHROME_LOCAL_STORAGE_QUOTA,
-  };
-}

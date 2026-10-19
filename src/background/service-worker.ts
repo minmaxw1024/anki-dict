@@ -7,9 +7,14 @@ import type {
   LookupResponse,
   FetchHtmlResponse,
   FetchAudioResponse,
+  PlayAudioResponse,
 } from "../lib/types";
 
-type MessageResponse = LookupResponse | FetchHtmlResponse | FetchAudioResponse;
+type MessageResponse =
+  | LookupResponse
+  | FetchHtmlResponse
+  | FetchAudioResponse
+  | PlayAudioResponse;
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Unknown error occurred";
@@ -48,6 +53,11 @@ function handleMessage(message: MessageRequest): Promise<MessageResponse> | unde
           console.error("Audio fetch error:", error);
           return { success: false, error: getErrorMessage(error) };
         });
+
+    case "play-audio":
+      return handlePlayAudio(message.url)
+        .then((): PlayAudioResponse => ({ success: true }))
+        .catch((error): PlayAudioResponse => ({ success: false, error: getErrorMessage(error) }));
 
     default:
       return undefined;
@@ -90,12 +100,22 @@ async function handleFetchHtml(url: string): Promise<string> {
   return response.text();
 }
 
-async function handleFetchAudio(url: string): Promise<string> {
-  const fullUrl = url.startsWith("http")
-    ? url
-    : `https://dictionary.cambridge.org${url}`;
+function toAbsoluteAudioUrl(url: string): string {
+  return url.startsWith("http") ? url : `https://dictionary.cambridge.org${url}`;
+}
 
-  const response = await fetch(fullUrl);
+// Firefox runs the background as an event page with a DOM, so it can play
+// audio itself, unaffected by the current page's CSP. Chrome's service worker
+// has no Audio; the content script then falls back to "fetch-audio".
+async function handlePlayAudio(url: string): Promise<void> {
+  if (typeof Audio === "undefined") {
+    throw new Error("Audio playback is not available in the background");
+  }
+  await new Audio(toAbsoluteAudioUrl(url)).play();
+}
+
+async function handleFetchAudio(url: string): Promise<string> {
+  const response = await fetch(toAbsoluteAudioUrl(url));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch audio: ${response.status}`);

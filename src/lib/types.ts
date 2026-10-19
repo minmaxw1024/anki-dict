@@ -80,4 +80,19 @@ export interface FetchAudioResponse {
   error?: string;
 }
 
-export type MessageRequest = LookupRequest | FetchHtmlRequest | SaveWordRequest | FetchAudioRequest;
+export interface PlayAudioRequest {
+  action: "play-audio";
+  url: string;
+}
+
+export interface PlayAudioResponse {
+  success: boolean;
+  error?: string;
+}
+
+export type MessageRequest =
+  | LookupRequest
+  | FetchHtmlRequest
+  | SaveWordRequest
+  | FetchAudioRequest
+  | PlayAudioRequest;

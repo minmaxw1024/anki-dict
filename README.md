@@ -44,6 +44,31 @@ bun run pack
 bun run test
 ```
 
+### Building the Firefox package (for addons.mozilla.org reviewers)
+
+The extension's code is bundled with Vite, so the shipped files are generated
+from the TypeScript sources in `src/`. Output is not minified.
+
+**Environment:** any OS with Node.js 18 or later and npm (tested with Node 24 on
+Windows 11; the Ubuntu 24.04 reviewer environment with Node 24 / npm 11 works
+too). Bun is used as the package manager and is fetched through `npx`, so it
+doesn't need to be installed separately. All other tools (TypeScript, Vite,
+esbuild) are open-source dev dependencies pinned in `bun.lock`.
+
+**Build:**
+
+```bash
+npm run build-for-amo
+```
+
+This runs `bun@1.4.3 install --frozen-lockfile` followed by
+`bun run build:firefox`, which type-checks and writes the extension to
+`dist/firefox/`. That directory's contents match the submitted package exactly.
+
+Maintainers: `bun run pack:firefox` zips `dist/firefox/` for upload, and
+`bun run pack:firefox-source` creates `dist/anki-dict-firefox-source.zip`
+(the committed sources, without `web/`) for the review's source-code upload.
+
 ### Load in Browser
 
 **Chrome / Edge**:

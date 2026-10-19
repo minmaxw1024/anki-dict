@@ -261,6 +261,26 @@ async function deleteSelected(): Promise<void> {
   await loadWords();
 }
 
+// Every origin the extension relies on: dictionary/AnkiConnect hosts plus the
+// pages the content script runs on. Firefox lets users revoke these.
+function requiredOrigins(): string[] {
+  const manifest = browser.runtime.getManifest();
+  const origins = new Set(manifest.host_permissions ?? []);
+  manifest.content_scripts?.forEach(script => script.matches?.forEach(match => origins.add(match)));
+  return [...origins];
+}
+
+async function checkPermissions(): Promise<void> {
+  const banner = document.getElementById('permission-banner');
+  if (!banner) return;
+  banner.hidden = await browser.permissions.contains({ origins: requiredOrigins() });
+}
+
+function grantPermissions(): void {
+  // Must be called straight from the click handler to count as a user action.
+  browser.permissions.request({ origins: requiredOrigins() }).then(checkPermissions);
+}
+
 document.getElementById('select-all')?.addEventListener('click', selectAll);
 document.getElementById('select-none')?.addEventListener('click', selectNone);
 document.getElementById('select-unexported')?.addEventListener('click', selectUnexported);
@@ -268,9 +288,11 @@ document.getElementById('export-btn')?.addEventListener('click', exportToAnki);
 document.getElementById('send-to-anki')?.addEventListener('click', sendToAnki);
 document.getElementById('delete-selected')?.addEventListener('click', deleteSelected);
 document.getElementById('clear-all')?.addEventListener('click', clearAll);
+document.getElementById('grant-permissions')?.addEventListener('click', grantPermissions);
 document.getElementById('settings-btn')?.addEventListener('click', () => {
   browser.runtime.openOptionsPage();
 });
 
 loadTheme();
 loadWords();
+checkPermissions();
