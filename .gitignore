@@ -38,3 +38,6 @@ yarn-error.log*
 
 # Local screenshots
 popup-test.png
+
+# Python
+__pycache__/

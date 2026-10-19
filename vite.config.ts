@@ -25,11 +25,17 @@ function generateManifest(distDir: string): void {
       type: "module",
     };
 
-    // Firefox requires browser_specific_settings
     manifest.browser_specific_settings = {
       gecko: {
-        id: "anki-dict@example.com",
-        strict_min_version: "109.0",
+        // Permanent once published on addons.mozilla.org; never change it.
+        id: "@anki-dictionary-helper",
+        // 140 is the first version with built-in data collection consent.
+        strict_min_version: "140.0",
+        // Required for new AMO submissions. The word the user Alt+clicks is
+        // page text sent to Cambridge Dictionary / Free Dictionary API.
+        data_collection_permissions: {
+          required: ["websiteContent"],
+        },
       },
     };
   }
@@ -83,6 +89,9 @@ export default defineConfig({
     outDir: resolve(__dirname, `dist/${targetBrowser}`),
     emptyOutDir: true,
     sourcemap: process.env.NODE_ENV === "development",
+    // AMO reviewers read the shipped code; unminified output is easier to
+    // review and Mozilla doesn't recommend minifying extensions.
+    minify: !isFirefox,
   },
   resolve: {
     alias: {

@@ -24,6 +24,7 @@ export interface Definition {
   examples: string[];
 }
 
+// 'duolingo' is kept as the ID so saved settings still match; it's shown as "Fresh Green".
 export type ThemeId = 'duolingo' | 'british';
 
 export interface StorageSchema {
@@ -80,4 +81,19 @@ export interface FetchAudioResponse {
   error?: string;
 }
 
-export type MessageRequest = LookupRequest | FetchHtmlRequest | SaveWordRequest | FetchAudioRequest;
+export interface PlayAudioRequest {
+  action: "play-audio";
+  url: string;
+}
+
+export interface PlayAudioResponse {
+  success: boolean;
+  error?: string;
+}
+
+export type MessageRequest =
+  | LookupRequest
+  | FetchHtmlRequest
+  | SaveWordRequest
+  | FetchAudioRequest
+  | PlayAudioRequest;

@@ -1,7 +1,11 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap");
+/*
+ * No web font here: content scripts run on every page, and loading one would
+ * either send a request per page view or expose the font to page scripts.
+ * Nunito is used when the user has it installed.
+ */
 
 .anki-dict-modal {
-    /* Default theme (Duolingo Origin) */
+    /* Default theme (Fresh Green) */
     --ad-primary: #58cc02;
     --ad-primary-dark: #43c000;
     --ad-primary-light: #89e219;

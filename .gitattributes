@@ -1,0 +1,7 @@
+# Keep LF everywhere so builds (and the AMO source archive) are byte-identical
+# on Windows, macOS and Linux.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.woff binary
+*.woff2 binary

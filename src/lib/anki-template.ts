@@ -1,5 +1,5 @@
 /**
- * Anki note type template for the Duolingo-style card.
+ * Anki note type template for the Fresh Green card style.
  *
  * Fields must match the column order in csv-exporter.ts:
  *   Word | British Pronunciation | American Pronunciation | British Audio |

@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
-import type { WordEntry, FetchAudioResponse } from '../lib/types';
-import { escapeHtml } from '../lib/utils';
+import type { Definition, WordEntry, FetchAudioResponse, PlayAudioResponse } from '../lib/types';
+import { append, el } from '../lib/dom';
 
 const MODAL_ID = 'anki-dict-modal';
 
@@ -17,7 +17,7 @@ export function createModal(): HTMLElement {
 
   const closeButton = document.createElement('button');
   closeButton.className = 'anki-dict-close';
-  closeButton.innerHTML = '×';
+  closeButton.textContent = '×';
   closeButton.onclick = () => hideModal(modal);
 
   const content = document.createElement('div');
@@ -37,7 +37,19 @@ export function createModal(): HTMLElement {
 
 export function showModal(modal: HTMLElement, x: number, y: number): void {
   modal.style.display = 'block';
+  modal.dataset.anchorX = String(x);
+  modal.dataset.anchorY = String(y);
+  positionModal(modal, x, y);
+}
 
+// The modal is first placed while it only shows the loading spinner, so it
+// has to be placed again once the (taller) definition replaces it.
+function repositionModal(modal: HTMLElement): void {
+  if (modal.style.display === 'none') return;
+  positionModal(modal, Number(modal.dataset.anchorX), Number(modal.dataset.anchorY));
+}
+
+function positionModal(modal: HTMLElement, x: number, y: number): void {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const modalRect = modal.getBoundingClientRect();
@@ -68,115 +80,96 @@ export function updateModalLoading(modal: HTMLElement, word: string): void {
   const content = modal.querySelector('.anki-dict-content');
   if (!content) return;
 
-  content.innerHTML = `
-    <div class="anki-dict-loading">
-      <div class="anki-dict-spinner"></div>
-      <p>Looking up "${escapeHtml(word)}"...</p>
-    </div>
-  `;
+  content.replaceChildren(
+    el('div', { class: 'anki-dict-loading' },
+      el('div', { class: 'anki-dict-spinner' }),
+      el('p', {}, `Looking up "${word}"...`),
+    ),
+  );
 }
 
 export function updateModalError(modal: HTMLElement, error: string): void {
   const content = modal.querySelector('.anki-dict-content');
   if (!content) return;
 
-  content.innerHTML = `
-    <div class="anki-dict-error">
-      <h3>Error</h3>
-      <p>${escapeHtml(error)}</p>
-    </div>
-  `;
+  content.replaceChildren(
+    el('div', { class: 'anki-dict-error' },
+      el('h3', {}, 'Error'),
+      el('p', {}, error),
+    ),
+  );
+  repositionModal(modal);
 }
 
 export function updateModalContent(modal: HTMLElement, wordEntry: WordEntry): void {
   const content = modal.querySelector('.anki-dict-content');
   if (!content) return;
 
-  const pronunciationHTML = createPronunciationHTML(wordEntry);
-  const definitionsHTML = createDefinitionsHTML(wordEntry);
+  const sourceUrl = /^https?:\/\//.test(wordEntry.sourceUrl) ? wordEntry.sourceUrl : null;
 
-  content.innerHTML = `
-    <div class="anki-dict-word">
-      <h2>${escapeHtml(wordEntry.word)}</h2>
-      ${pronunciationHTML}
-    </div>
-    ${definitionsHTML}
-    <div class="anki-dict-source">
-      <a href="${escapeHtml(wordEntry.sourceUrl)}" target="_blank" rel="noopener">View on Cambridge Dictionary</a>
-    </div>
-  `;
+  content.replaceChildren();
+  append(content,
+    el('div', { class: 'anki-dict-word' },
+      el('h2', {}, wordEntry.word),
+      createPronunciations(wordEntry),
+    ),
+    ...wordEntry.definitions.map(createDefinition),
+    sourceUrl && el('div', { class: 'anki-dict-source' },
+      el('a', { href: sourceUrl, target: '_blank', rel: 'noopener' }, 'View on Cambridge Dictionary'),
+    ),
+  );
 
-  const audioButtons = content.querySelectorAll('.anki-dict-audio-btn');
-  audioButtons.forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      const audioUrl = (e.target as HTMLElement).dataset.audioUrl;
-      if (audioUrl) {
-        playAudio(audioUrl);
-      }
-    });
-  });
+  repositionModal(modal);
 }
 
-function createPronunciationHTML(wordEntry: WordEntry): string {
-  const parts: string[] = [];
-
-  if (wordEntry.pronunciations.uk) {
-    const { ipa, audioUrl } = wordEntry.pronunciations.uk;
-    const audioBtn = audioUrl
-      ? `<button class="anki-dict-audio-btn" data-audio-url="${escapeHtml(audioUrl)}">🔊</button>`
-      : '';
-    parts.push(`<div class="anki-dict-pronunciation">
-      <span class="anki-dict-pron-label">UK</span>
-      <span class="anki-dict-pron-ipa">${escapeHtml(ipa)}</span>
-      ${audioBtn}
-    </div>`);
+function createPronunciation(label: string, pron: { ipa: string; audioUrl?: string }): HTMLElement {
+  const audioBtn = pron.audioUrl ? el('button', { class: 'anki-dict-audio-btn' }, '🔊') : null;
+  const audioUrl = pron.audioUrl;
+  if (audioBtn && audioUrl) {
+    audioBtn.addEventListener('click', () => playAudio(audioUrl));
   }
 
-  if (wordEntry.pronunciations.us) {
-    const { ipa, audioUrl } = wordEntry.pronunciations.us;
-    const audioBtn = audioUrl
-      ? `<button class="anki-dict-audio-btn" data-audio-url="${escapeHtml(audioUrl)}">🔊</button>`
-      : '';
-    parts.push(`<div class="anki-dict-pronunciation">
-      <span class="anki-dict-pron-label">US</span>
-      <span class="anki-dict-pron-ipa">${escapeHtml(ipa)}</span>
-      ${audioBtn}
-    </div>`);
-  }
-
-  return parts.length > 0
-    ? `<div class="anki-dict-pronunciations">${parts.join('')}</div>`
-    : '';
+  return el('div', { class: 'anki-dict-pronunciation' },
+    el('span', { class: 'anki-dict-pron-label' }, label),
+    el('span', { class: 'anki-dict-pron-ipa' }, pron.ipa),
+    audioBtn,
+  );
 }
 
-function createDefinitionsHTML(wordEntry: WordEntry): string {
-  return wordEntry.definitions
-    .map((def, index) => {
-      const header = [
-        `<span class="anki-dict-pos">${escapeHtml(def.partOfSpeech)}</span>`,
-        def.level ? `<span class="anki-dict-level">${escapeHtml(def.level)}</span>` : '',
-        def.category ? `<span class="anki-dict-category">${escapeHtml(def.category)}</span>` : ''
-      ].filter(Boolean).join(' ');
+function createPronunciations(wordEntry: WordEntry): HTMLElement | null {
+  const { uk, us } = wordEntry.pronunciations;
+  if (!uk && !us) return null;
 
-      const examples = def.examples.length > 0
-        ? `<ul class="anki-dict-examples">
-            ${def.examples.slice(0, 3).map(ex => `<li>${escapeHtml(ex)}</li>`).join('')}
-          </ul>`
-        : '';
+  return el('div', { class: 'anki-dict-pronunciations' },
+    uk && createPronunciation('UK', uk),
+    us && createPronunciation('US', us),
+  );
+}
 
-      return `
-        <div class="anki-dict-definition">
-          <div class="anki-dict-def-header">${header}</div>
-          <p class="anki-dict-meaning">${escapeHtml(def.meaning)}</p>
-          ${examples}
-        </div>
-      `;
-    })
-    .join('');
+function createDefinition(def: Definition): HTMLElement {
+  return el('div', { class: 'anki-dict-definition' },
+    el('div', { class: 'anki-dict-def-header' },
+      el('span', { class: 'anki-dict-pos' }, def.partOfSpeech),
+      def.level && ' ',
+      def.level && el('span', { class: 'anki-dict-level' }, def.level),
+      def.category && ' ',
+      def.category && el('span', { class: 'anki-dict-category' }, def.category),
+    ),
+    el('p', { class: 'anki-dict-meaning' }, def.meaning),
+    def.examples.length > 0 && el('ul', { class: 'anki-dict-examples' },
+      ...def.examples.slice(0, 3).map(example => el('li', {}, example)),
+    ),
+  );
 }
 
 async function playAudio(url: string): Promise<void> {
   try {
+    const played: PlayAudioResponse = await browser.runtime.sendMessage({
+      action: "play-audio",
+      url,
+    });
+    if (played.success) return;
+
     // Fetch audio through the service worker to bypass page CSP restrictions
     const response: FetchAudioResponse = await browser.runtime.sendMessage({
       action: "fetch-audio",
