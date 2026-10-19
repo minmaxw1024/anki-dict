@@ -1,8 +1,8 @@
 import { getSettings, saveSettings } from '../lib/storage';
-import { THEMES, THEME_IDS, applyThemeToDocument } from '../lib/themes';
+import { THEMES, THEME_IDS, applyThemeToDocument, type ThemeColors } from '../lib/themes';
 import { ANKI_TEMPLATE_SECTIONS } from '../lib/anki-template';
 import { testConnection, getDeckNames, getModelNames } from '../lib/anki-connect';
-import { escapeHtml } from '../lib/utils';
+import { el } from '../lib/dom';
 import type { ThemeId } from '../lib/types';
 
 let currentTheme: ThemeId = 'duolingo';
@@ -21,35 +21,31 @@ function renderThemeCards(): void {
   const container = document.getElementById('theme-list');
   if (!container) return;
 
-  container.innerHTML = THEME_IDS.map((id) => {
+  const swatches: [keyof ThemeColors, string][] = [
+    ['primary', 'Primary'],
+    ['primaryLight', 'Light'],
+    ['accentBlue', 'Accent'],
+    ['accentYellow', 'Accent 2'],
+    ['bgAlt', 'Background'],
+  ];
+
+  container.replaceChildren(...THEME_IDS.map((id) => {
     const theme = THEMES[id];
-    const isActive = id === currentTheme;
-    const c = theme.colors;
-
-    return `
-      <div class="theme-card ${isActive ? 'active' : ''}" data-theme="${id}">
-        <div class="theme-radio"></div>
-        <div class="theme-info">
-          <div class="theme-name">${escapeHtml(theme.name)}</div>
-          <div class="theme-desc">${escapeHtml(theme.description)}</div>
-        </div>
-        <div class="theme-preview">
-          <div class="theme-swatch" style="background: ${c.primary};" title="Primary"></div>
-          <div class="theme-swatch" style="background: ${c.primaryLight};" title="Light"></div>
-          <div class="theme-swatch" style="background: ${c.accentBlue};" title="Accent"></div>
-          <div class="theme-swatch" style="background: ${c.accentYellow};" title="Accent 2"></div>
-          <div class="theme-swatch" style="background: ${c.bgAlt};" title="Background"></div>
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  container.querySelectorAll('.theme-card').forEach((card) => {
-    card.addEventListener('click', () => {
-      const themeId = (card as HTMLElement).dataset.theme as ThemeId;
-      selectTheme(themeId);
-    });
-  });
+    const card = el('div', { class: `theme-card${id === currentTheme ? ' active' : ''}`, 'data-theme': id },
+      el('div', { class: 'theme-radio' }),
+      el('div', { class: 'theme-info' },
+        el('div', { class: 'theme-name' }, theme.name),
+        el('div', { class: 'theme-desc' }, theme.description),
+      ),
+      el('div', { class: 'theme-preview' },
+        ...swatches.map(([key, title]) =>
+          el('div', { class: 'theme-swatch', style: `background: ${theme.colors[key]};`, title }),
+        ),
+      ),
+    );
+    card.addEventListener('click', () => selectTheme(id));
+    return card;
+  }));
 }
 
 async function selectTheme(themeId: ThemeId): Promise<void> {
@@ -85,42 +81,35 @@ function renderTemplateSteps(): void {
   const container = document.getElementById('template-steps');
   if (!container) return;
 
-  container.innerHTML = ANKI_TEMPLATE_SECTIONS.map((section, index) => {
-    const codeId = `template-code-${index}`;
-    const btnId = `template-btn-${index}`;
-    const langLabel = section.language === 'text' ? 'FIELDS' : section.language.toUpperCase();
-    return `
-      <div class="template-step">
-        <div class="template-step-header">
-          <span class="template-step-label">${escapeHtml(section.label)}</span>
-          <span class="template-lang-tag">${langLabel}</span>
-        </div>
-        <p class="template-step-desc">${escapeHtml(section.description)}</p>
-        <div class="template-code-wrap">
-          <pre id="${codeId}" class="template-code">${escapeHtml(section.content)}</pre>
-          <button id="${btnId}" class="template-copy-btn" data-index="${index}">
-            <span class="template-copy-icon">&#x2398;</span>
-            Copy
-          </button>
-        </div>
-      </div>
-    `;
-  }).join('');
+  const copyLabel = (icon: string, text: string) => [el('span', { class: 'template-copy-icon' }, icon), ` ${text}`];
 
-  container.querySelectorAll<HTMLButtonElement>('.template-copy-btn').forEach((btn) => {
+  container.replaceChildren(...ANKI_TEMPLATE_SECTIONS.map((section, index) => {
+    const langLabel = section.language === 'text' ? 'FIELDS' : section.language.toUpperCase();
+
+    const btn = el('button', { id: `template-btn-${index}`, class: 'template-copy-btn' }, ...copyLabel('⎘', 'Copy'));
     btn.addEventListener('click', () => {
-      const index = Number(btn.dataset.index);
-      const section = ANKI_TEMPLATE_SECTIONS[index];
       navigator.clipboard.writeText(section.content).then(() => {
         btn.classList.add('copied');
-        btn.innerHTML = '<span class="template-copy-icon">&#10003;</span> Copied!';
+        btn.replaceChildren(...copyLabel('✓', 'Copied!'));
         setTimeout(() => {
           btn.classList.remove('copied');
-          btn.innerHTML = '<span class="template-copy-icon">&#x2398;</span> Copy';
+          btn.replaceChildren(...copyLabel('⎘', 'Copy'));
         }, 2000);
       });
     });
-  });
+
+    return el('div', { class: 'template-step' },
+      el('div', { class: 'template-step-header' },
+        el('span', { class: 'template-step-label' }, section.label),
+        el('span', { class: 'template-lang-tag' }, langLabel),
+      ),
+      el('p', { class: 'template-step-desc' }, section.description),
+      el('div', { class: 'template-code-wrap' },
+        el('pre', { id: `template-code-${index}`, class: 'template-code' }, section.content),
+        btn,
+      ),
+    );
+  }));
 }
 
 function initAnkiConnect(settings: { ankiConnectUrl?: string; ankiDeckName?: string; ankiModelName?: string }): void {
@@ -186,10 +175,10 @@ async function populateAnkiLists(): Promise<void> {
     const modelList = document.getElementById('anki-model-list');
 
     if (deckList) {
-      deckList.innerHTML = decks.map(d => `<option value="${escapeHtml(d)}">`).join('');
+      deckList.replaceChildren(...decks.map(d => el('option', { value: d })));
     }
     if (modelList) {
-      modelList.innerHTML = models.map(m => `<option value="${escapeHtml(m)}">`).join('');
+      modelList.replaceChildren(...models.map(m => el('option', { value: m })));
     }
   } catch {
     // silently fail - datalist is just a convenience

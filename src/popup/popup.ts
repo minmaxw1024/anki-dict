@@ -2,7 +2,7 @@ import browser from 'webextension-polyfill';
 import { getAllWords, deleteWord, clearAllWords, getSettings, getExportedWords, markWordsExported } from '../lib/storage';
 import { generateAnkiCSV } from '../lib/csv-exporter';
 import { applyThemeToDocument } from '../lib/themes';
-import { escapeHtml } from '../lib/utils';
+import { el } from '../lib/dom';
 import { isAvailable, ensureDeckAndModel, addNotes } from '../lib/anki-connect';
 import type { WordEntry } from '../lib/types';
 
@@ -28,59 +28,47 @@ function renderWordList(): void {
 
   if (!wordListEl || !emptyStateEl) return;
 
-  if (allWords.length === 0) {
-    wordListEl.innerHTML = '';
-    emptyStateEl.style.display = 'block';
-    return;
-  }
-
-  emptyStateEl.style.display = 'none';
-
-  wordListEl.innerHTML = allWords
-    .map(word => createWordItem(word))
-    .join('');
-
-  wordListEl.querySelectorAll('.word-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', handleCheckboxChange);
-  });
-
-  wordListEl.querySelectorAll('.delete-word-btn').forEach(btn => {
-    btn.addEventListener('click', handleDeleteWord);
-  });
+  emptyStateEl.style.display = allWords.length === 0 ? 'block' : 'none';
+  wordListEl.replaceChildren(...allWords.map(createWordItem));
 }
 
-function createWordItem(word: WordEntry): string {
-  const isChecked = selectedWords.has(word.word);
+function createWordItem(word: WordEntry): HTMLElement {
   const isExported = exportedWords.has(word.word);
   const firstDef = word.definitions[0];
   const dateStr = new Date(word.timestamp).toLocaleDateString();
+  const defCount = word.definitions.length;
+  const preview = firstDef.meaning.length > 100 ? `${firstDef.meaning.substring(0, 100)}...` : firstDef.meaning;
 
-  return `
-    <div class="word-item">
-      <input
-        type="checkbox"
-        class="word-checkbox"
-        data-word="${escapeHtml(word.word)}"
-        ${isChecked ? 'checked' : ''}
-      >
-      <div class="word-info">
-        <div class="word-header">
-          <span class="word-title">${escapeHtml(word.word)}</span>
-          ${word.pronunciations.uk ? `<span class="word-pronunciation">${escapeHtml(word.pronunciations.uk.ipa)}</span>` : ''}
-        </div>
-        <div class="word-meta">
-          <span class="word-pos">${escapeHtml(firstDef.partOfSpeech)}</span>
-          <span class="word-date">${dateStr}</span>
-          <span class="word-def-count">${word.definitions.length} definition${word.definitions.length > 1 ? 's' : ''}</span>
-          ${isExported ? '<span class="word-exported-badge">Exported</span>' : ''}
-        </div>
-        <div class="word-preview">
-          ${escapeHtml(firstDef.meaning.substring(0, 100))}${firstDef.meaning.length > 100 ? '...' : ''}
-        </div>
-      </div>
-      <button class="delete-word-btn" data-word="${escapeHtml(word.word)}" title="Delete this word">×</button>
-    </div>
-  `;
+  const checkbox = el('input', {
+    type: 'checkbox',
+    class: 'word-checkbox',
+    'data-word': word.word,
+    checked: selectedWords.has(word.word),
+  });
+  checkbox.addEventListener('change', handleCheckboxChange);
+
+  const deleteBtn = el('button', { class: 'delete-word-btn', 'data-word': word.word, title: 'Delete this word' }, '×');
+  deleteBtn.addEventListener('click', handleDeleteWord);
+
+  return el('div', { class: 'word-item' },
+    checkbox,
+    el('div', { class: 'word-info' },
+      el('div', { class: 'word-header' },
+        el('span', { class: 'word-title' }, word.word),
+        word.pronunciations.uk && ' ',
+        word.pronunciations.uk && el('span', { class: 'word-pronunciation' }, word.pronunciations.uk.ipa),
+      ),
+      el('div', { class: 'word-meta' },
+        el('span', { class: 'word-pos' }, firstDef.partOfSpeech), ' ',
+        el('span', { class: 'word-date' }, dateStr), ' ',
+        el('span', { class: 'word-def-count' }, `${defCount} definition${defCount > 1 ? 's' : ''}`),
+        isExported && ' ',
+        isExported && el('span', { class: 'word-exported-badge' }, 'Exported'),
+      ),
+      el('div', { class: 'word-preview' }, preview),
+    ),
+    deleteBtn,
+  );
 }
 
 function handleCheckboxChange(event: Event): void {

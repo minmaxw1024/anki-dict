@@ -9,7 +9,7 @@
 
    ```bash
    bun run build:firefox
-   bun run lint:firefox        # 应该是 0 errors（会有 innerHTML 和 Android 版本的 warning，见第 4 节）
+   bun run lint:firefox        # 应该是 0 errors、1 个 warning（Android 最低版本提示，不上架 Android 可以忽略）
    bun run pack:firefox        # 生成 dist/anki-dict-firefox.zip，用来上传
    bun run pack:firefox-source # 生成 dist/anki-dict-firefox-source.zip，审核用的源码
    ```
@@ -84,7 +84,7 @@
 >
 > **Data:** The word the user Alt+clicks is sent to the dictionary sources, declared as `websiteContent` in `data_collection_permissions`. There is no developer server or analytics, and no remote code, fonts or other resources are loaded.
 >
-> **innerHTML warnings:** Every dynamic value inserted with innerHTML goes through `escapeHtml` in `src/lib/utils.ts` first. The remaining interpolations are constants from the extension itself (theme colors, template text).
+> **DOM:** The UI is built with `createElement`/`textContent` (see `src/lib/dom.ts`); no HTML strings are inserted into pages.
 
 ## 5. 测试状态
 
