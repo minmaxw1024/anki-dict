@@ -32,8 +32,8 @@ export interface ThemeDefinition {
 export const THEMES: Record<ThemeId, ThemeDefinition> = {
   duolingo: {
     id: 'duolingo',
-    name: 'Duolingo Origin',
-    description: 'Classic Duolingo style, fresh and vibrant green',
+    name: 'Fresh Green',
+    description: 'Bright and playful, with a vibrant green accent',
     colors: {
       primary: '#58cc02',
       primaryDark: '#43c000',

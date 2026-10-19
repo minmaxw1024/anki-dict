@@ -24,6 +24,7 @@ export interface Definition {
   examples: string[];
 }
 
+// 'duolingo' is kept as the ID so saved settings still match; it's shown as "Fresh Green".
 export type ThemeId = 'duolingo' | 'british';
 
 export interface StorageSchema {

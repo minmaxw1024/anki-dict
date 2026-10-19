@@ -12,7 +12,7 @@ A browser extension that lets you look up English words from Cambridge Dictionar
 - **CSV Export**: Export words as tab-separated CSV for manual Anki import
 - **Audio in Anki Cards**: Exported cards include clickable pronunciation buttons
 - **Batch Operations**: Select all, batch delete, batch export
-- **Themes**: Duolingo-style and British Classic themes
+- **Themes**: Fresh Green and British Classic themes
 - **Anki Card Template**: Built-in card template with step-by-step setup guide in settings
 - **Cross-Browser**: Chrome, Edge, and Firefox (Manifest V3)
 

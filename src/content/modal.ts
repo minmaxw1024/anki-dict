@@ -37,7 +37,19 @@ export function createModal(): HTMLElement {
 
 export function showModal(modal: HTMLElement, x: number, y: number): void {
   modal.style.display = 'block';
+  modal.dataset.anchorX = String(x);
+  modal.dataset.anchorY = String(y);
+  positionModal(modal, x, y);
+}
 
+// The modal is first placed while it only shows the loading spinner, so it
+// has to be placed again once the (taller) definition replaces it.
+function repositionModal(modal: HTMLElement): void {
+  if (modal.style.display === 'none') return;
+  positionModal(modal, Number(modal.dataset.anchorX), Number(modal.dataset.anchorY));
+}
+
+function positionModal(modal: HTMLElement, x: number, y: number): void {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const modalRect = modal.getBoundingClientRect();
@@ -86,6 +98,7 @@ export function updateModalError(modal: HTMLElement, error: string): void {
       <p>${escapeHtml(error)}</p>
     </div>
   `;
+  repositionModal(modal);
 }
 
 export function updateModalContent(modal: HTMLElement, wordEntry: WordEntry): void {
@@ -105,6 +118,8 @@ export function updateModalContent(modal: HTMLElement, wordEntry: WordEntry): vo
       <a href="${escapeHtml(wordEntry.sourceUrl)}" target="_blank" rel="noopener">View on Cambridge Dictionary</a>
     </div>
   `;
+
+  repositionModal(modal);
 
   const audioButtons = content.querySelectorAll('.anki-dict-audio-btn');
   audioButtons.forEach((btn) => {
