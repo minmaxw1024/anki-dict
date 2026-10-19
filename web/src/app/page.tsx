@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import type { WordEntry, LookupResult } from '@/lib/types';
-import { generateAnkiCSV } from '@/lib/csv-exporter';
+import { generateAnkiCSV } from '@shared/csv-exporter';
 import WordCard from '@/components/WordCard';
 
 type LookupStatus = 'idle' | 'loading' | 'done';
@@ -43,10 +43,14 @@ export default function Home() {
         });
 
         const data = await res.json();
-        if (data.results) {
+        if (res.ok && data.results) {
           allResults.push(...data.results);
-          setResults([...allResults]);
+        } else {
+          // e.g. 429 from the rate limiter: report the batch instead of dropping it
+          const error = data.error || `Request failed (${res.status})`;
+          batch.forEach(w => allResults.push({ word: w, success: false, error }));
         }
+        setResults([...allResults]);
       } catch {
         batch.forEach(w => {
           allResults.push({ word: w, success: false, error: 'Network error' });
@@ -67,7 +71,7 @@ export default function Home() {
     const words = successResults.map(r => r.data!);
     if (words.length === 0) return;
 
-    const csv = generateAnkiCSV(words);
+    const csv = generateAnkiCSV(words, ['cambridge-dictionary', 'anki-dict-web']);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

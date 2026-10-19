@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill';
 import { saveWord, getWord } from "../lib/storage";
+import { arrayBufferToBase64 } from "../lib/utils";
 import type {
   MessageRequest,
   WordEntry,
@@ -100,13 +101,7 @@ async function handleFetchAudio(url: string): Promise<string> {
     throw new Error(`Failed to fetch audio: ${response.status}`);
   }
 
-  const arrayBuffer = await response.arrayBuffer();
-  const bytes = new Uint8Array(arrayBuffer);
-  let binary = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  const base64 = btoa(binary);
+  const base64 = arrayBufferToBase64(await response.arrayBuffer());
   const contentType = response.headers.get("content-type") || "audio/mpeg";
 
   return `data:${contentType};base64,${base64}`;

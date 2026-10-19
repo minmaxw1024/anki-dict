@@ -1,28 +1,6 @@
-export interface WordEntry {
-  word: string;
-  timestamp: number;
-  pronunciations: {
-    uk?: {
-      ipa: string;
-      audioUrl?: string;
-    };
-    us?: {
-      ipa: string;
-      audioUrl?: string;
-    };
-  };
-  definitions: Definition[];
-  sourceUrl: string;
-  lastAccessed: number;
-}
+import type { WordEntry } from '@shared/types';
 
-export interface Definition {
-  partOfSpeech: string;
-  level?: string;
-  category?: string;
-  meaning: string;
-  examples: string[];
-}
+export type { WordEntry, Definition } from '@shared/types';
 
 export interface LookupResult {
   word: string;

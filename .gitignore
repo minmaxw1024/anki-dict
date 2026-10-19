@@ -31,3 +31,10 @@ yarn-error.log*
 # Temporary files
 *.tmp
 .cache/
+
+# Claude Code local state
+.claude/worktrees/
+.claude/settings.local.json
+
+# Local screenshots
+popup-test.png

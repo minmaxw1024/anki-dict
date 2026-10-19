@@ -175,12 +175,24 @@ export function getCambridgeUrl(word: string): string {
   return `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(cleanWord)}`;
 }
 
-export function parseCambridgeHtml(html: string, word: string): WordEntry {
+export type DocumentParser = (html: string) => Document;
+
+const parseWithDOMParser: DocumentParser = (html) =>
+  new DOMParser().parseFromString(html, "text/html");
+
+/**
+ * Parses a Cambridge Dictionary entry page. Pass `parseDocument` where there
+ * is no global DOMParser (the web app's server uses jsdom).
+ */
+export function parseCambridgeHtml(
+  html: string,
+  word: string,
+  parseDocument: DocumentParser = parseWithDOMParser,
+): WordEntry {
   const cleanWord = word.toLowerCase().trim();
   const url = getCambridgeUrl(cleanWord);
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
+  const doc = parseDocument(html);
 
   const entryBody = findElement(doc, CAMBRIDGE_SELECTORS.selectors.entryBody);
 

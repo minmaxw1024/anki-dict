@@ -1,11 +1,13 @@
 import type { WordEntry } from './types';
 import { escapeHtml } from './utils';
 
-export function generateAnkiCSV(words: WordEntry[]): string {
+const DEFAULT_TAGS = ['cambridge-dictionary', 'anki-dict-extension'];
+
+export function generateAnkiCSV(words: WordEntry[], tags: string[] = DEFAULT_TAGS): string {
   const header = [
     '# separator:tab',
     '# html:true',
-    '# tags:cambridge-dictionary anki-dict-extension',
+    `# tags:${tags.join(' ')}`,
     'Word\tBritish Pronunciation\tAmerican Pronunciation\tBritish Audio\tAmerican Audio\tDefinitions\tExamples\tSource'
   ].join('\n');
 
