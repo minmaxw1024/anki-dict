@@ -39,6 +39,9 @@ bun run build:edge
 
 # Package .zip files for store submission
 bun run pack
+
+# Run the unit tests (parsers, CSV export, storage, AnkiConnect sync)
+bun run test
 ```
 
 ### Load in Browser

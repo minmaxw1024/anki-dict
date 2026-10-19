@@ -1,7 +1,7 @@
 'use client';
 
 import type { WordEntry } from '@/lib/types';
-import { escapeHtml } from '@/lib/utils';
+import { escapeHtml } from '@shared/utils';
 
 function AudioButton({ url }: { url: string }) {
   const play = () => {

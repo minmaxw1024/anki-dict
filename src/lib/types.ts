@@ -27,6 +27,7 @@ export interface Definition {
 export type ThemeId = 'duolingo' | 'british';
 
 export interface StorageSchema {
+  /** Stored as one `word:<word>` key per entry. */
   words: {
     [word: string]: WordEntry;
   };

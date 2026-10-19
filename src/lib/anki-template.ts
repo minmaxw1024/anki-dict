@@ -2,7 +2,12 @@
  * Anki note type template for the Duolingo-style card.
  *
  * Fields must match the column order in csv-exporter.ts:
- *   Word | British Pronunciation | American Pronunciation | Definitions | Examples | Source
+ *   Word | British Pronunciation | American Pronunciation | British Audio |
+ *   American Audio | Definitions | Examples | Source
+ *
+ * The audio fields hold either an Anki `[sound:...]` tag (notes added through
+ * AnkiConnect, audio stored in the media folder) or a plain URL (CSV import).
+ * The back template's script turns plain URLs into play buttons.
  */
 
 export interface AnkiTemplateSection {
@@ -20,7 +25,29 @@ const FRONT_TEMPLATE = `<div class="ad-card ad-front">
 
 // ─── Back Template ────────────────────────────────────────────────────────────
 
-const BACK_TEMPLATE = `<div class="ad-card ad-back">
+type AudioRenderer = (field: string) => string;
+
+// Plays a remote URL; breaks once a field contains a [sound:] tag.
+const legacyAudioButton: AudioRenderer = (field) =>
+  `{{#${field}}}<span class="ad-audio-btn" onclick="new Audio('{{${field}}}').play()">🔊</span>{{/${field}}}`;
+
+const audioButton: AudioRenderer = (field) =>
+  `{{#${field}}}<span class="ad-audio">{{${field}}}</span>{{/${field}}}`;
+
+const AUDIO_URL_SCRIPT = `<script>
+(function () {
+  document.querySelectorAll('.ad-audio').forEach(function (el) {
+    var url = el.textContent.trim();
+    // A [sound:] field is already rendered by Anki as its own play button.
+    if (!/^https?:/.test(url)) return;
+    el.textContent = '🔊';
+    el.classList.add('ad-audio-btn');
+    el.onclick = function () { new Audio(url).play(); };
+  });
+})();
+</script>`;
+
+const buildBackTemplate = (audio: AudioRenderer): string => `<div class="ad-card ad-back">
   <div class="ad-word">{{Word}}</div>
 
   {{#British Pronunciation}}{{#American Pronunciation}}
@@ -28,14 +55,14 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
     {{#British Pronunciation}}
     <span class="ad-pron ad-pron--uk">
       <span class="ad-pron-flag">🇬🇧</span>
-      {{#British Audio}}<span class="ad-audio-btn" onclick="new Audio('{{British Audio}}').play()">🔊</span>{{/British Audio}}
+      ${audio('British Audio')}
       <span class="ad-pron-ipa">{{British Pronunciation}}</span>
     </span>
     {{/British Pronunciation}}
     {{#American Pronunciation}}
     <span class="ad-pron ad-pron--us">
       <span class="ad-pron-flag">🇺🇸</span>
-      {{#American Audio}}<span class="ad-audio-btn" onclick="new Audio('{{American Audio}}').play()">🔊</span>{{/American Audio}}
+      ${audio('American Audio')}
       <span class="ad-pron-ipa">{{American Pronunciation}}</span>
     </span>
     {{/American Pronunciation}}
@@ -46,7 +73,7 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
   <div class="ad-prons">
     <span class="ad-pron ad-pron--uk">
       <span class="ad-pron-flag">🇬🇧</span>
-      {{#British Audio}}<span class="ad-audio-btn" onclick="new Audio('{{British Audio}}').play()">🔊</span>{{/British Audio}}
+      ${audio('British Audio')}
       <span class="ad-pron-ipa">{{British Pronunciation}}</span>
     </span>
   </div>
@@ -56,7 +83,7 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
   <div class="ad-prons">
     <span class="ad-pron ad-pron--us">
       <span class="ad-pron-flag">🇺🇸</span>
-      {{#American Audio}}<span class="ad-audio-btn" onclick="new Audio('{{American Audio}}').play()">🔊</span>{{/American Audio}}
+      ${audio('American Audio')}
       <span class="ad-pron-ipa">{{American Pronunciation}}</span>
     </span>
   </div>
@@ -78,7 +105,16 @@ const BACK_TEMPLATE = `<div class="ad-card ad-back">
     <a href="{{Source}}" target="_blank">📖 View in Cambridge Dictionary</a>
   </div>
   {{/Source}}
-</div>`.trim();
+</div>`;
+
+export const LEGACY_BACK_TEMPLATE = buildBackTemplate(legacyAudioButton);
+
+const BACK_TEMPLATE = `${buildBackTemplate(audioButton)}
+
+${AUDIO_URL_SCRIPT}`;
+
+/** Present only in templates that understand `[sound:]` audio fields. */
+export const AUDIO_TEMPLATE_MARKER = 'class="ad-audio"';
 
 // ─── Card CSS ─────────────────────────────────────────────────────────────────
 
@@ -163,6 +199,16 @@ const CARD_CSS = `.card {
 
 .ad-audio-btn:hover {
   opacity: 1;
+}
+
+.ad-audio {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.ad-audio .replay-button svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* Definitions */

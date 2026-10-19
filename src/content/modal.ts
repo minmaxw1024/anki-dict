@@ -71,7 +71,7 @@ export function updateModalLoading(modal: HTMLElement, word: string): void {
   content.innerHTML = `
     <div class="anki-dict-loading">
       <div class="anki-dict-spinner"></div>
-      <p>Looking up "${word}"...</p>
+      <p>Looking up "${escapeHtml(word)}"...</p>
     </div>
   `;
 }

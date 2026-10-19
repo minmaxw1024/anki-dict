@@ -220,10 +220,10 @@ async function sendToAnki(): Promise<void> {
 
     if (btn) btn.textContent = 'Sending...';
 
-    await ensureDeckAndModel();
+    const modelInfo = await ensureDeckAndModel();
 
     const wordsToSend = allWords.filter(w => selectedWords.has(w.word));
-    const result = await addNotes(wordsToSend);
+    const result = await addNotes(wordsToSend, modelInfo);
 
     await markWordsExported(wordsToSend.map(w => w.word));
     exportedWords = await getExportedWords();
@@ -232,6 +232,9 @@ async function sendToAnki(): Promise<void> {
     let message = `Added ${result.added} word${result.added !== 1 ? 's' : ''} to Anki.`;
     if (result.duplicates > 0) {
       message += `\n${result.duplicates} duplicate${result.duplicates !== 1 ? 's' : ''} skipped.`;
+    }
+    if (result.failed > 0) {
+      message += `\n${result.failed} word${result.failed !== 1 ? 's' : ''} could not be added.`;
     }
     alert(message);
   } catch (error) {
