@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { existsSync, renameSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import webExt from "web-ext";
@@ -14,6 +15,19 @@ const outZip = resolve("dist", outName);
 
 if (!existsSync(distDir)) {
   console.error(`dist/${browser} does not exist. Run build first.`);
+  process.exit(1);
+}
+
+// AMO reviewers rebuild from the LF sources in git; a file an editor saved
+// with CRLF would make this package differ from their build.
+const crlfFiles = execSync("git ls-files --eol", { encoding: "utf-8" })
+  .split("\n")
+  .filter((line) => /\bw\/(crlf|mixed)\b/.test(line))
+  .map((line) => line.split("\t").pop())
+  .filter((file) => !file.startsWith("web/"));
+if (crlfFiles.length > 0) {
+  console.error("These files have CRLF line endings; convert them to LF and rebuild:");
+  crlfFiles.forEach((file) => console.error(`  ${file}`));
   process.exit(1);
 }
 
