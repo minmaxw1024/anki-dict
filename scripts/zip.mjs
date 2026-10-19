@@ -1,6 +1,6 @@
-import { execSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { existsSync, renameSync, rmSync } from "node:fs";
+import { resolve } from "node:path";
+import webExt from "web-ext";
 
 const browser = process.argv[2];
 if (!browser) {
@@ -9,26 +9,26 @@ if (!browser) {
 }
 
 const distDir = resolve("dist", browser);
-const outZip = resolve("dist", `anki-dict-${browser}.zip`);
+const outName = `anki-dict-${browser}.zip`;
+const outZip = resolve("dist", outName);
 
 if (!existsSync(distDir)) {
   console.error(`dist/${browser} does not exist. Run build first.`);
   process.exit(1);
 }
 
-// Use PowerShell Compress-Archive on Windows, zip on Unix
-const isWindows = process.platform === "win32";
+// web-ext writes standard zips with forward-slash paths on every OS.
+// (PowerShell's Compress-Archive uses backslashes, which AMO rejects.)
+const tmpDir = resolve("dist", `.zip-${browser}`);
+rmSync(tmpDir, { recursive: true, force: true });
 
-if (isWindows) {
-  // Remove existing zip to avoid Compress-Archive error
-  execSync(
-    `powershell -NoProfile -Command "if (Test-Path '${outZip}') { Remove-Item '${outZip}' }; Compress-Archive -Path '${distDir}\\*' -DestinationPath '${outZip}'"`,
-    { stdio: "inherit" }
-  );
-} else {
-  execSync(`cd "${distDir}" && zip -r "../anki-dict-${browser}.zip" .`, {
-    stdio: "inherit",
-  });
-}
+await webExt.cmd.build(
+  { sourceDir: distDir, artifactsDir: tmpDir, filename: outName, overwriteDest: true },
+  { shouldExitProgram: false },
+);
+
+rmSync(outZip, { force: true });
+renameSync(resolve(tmpDir, outName), outZip);
+rmSync(tmpDir, { recursive: true, force: true });
 
 console.log(`Created ${outZip}`);
